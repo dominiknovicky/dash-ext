@@ -1,25 +1,26 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect } from "react";
+import { AppWrapper } from "./styles/BasicStyles";
+import { reactLocalStorage } from "reactjs-localstorage";
+import { useStateWithCallbackLazy } from "use-state-with-callback";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+const App = () => {
+  const [usernameLocalStorage, setUserLocalStorage] = useStateWithCallbackLazy(
+    ""
   );
-}
+
+  useEffect(() => {
+    setUserLocalStorage(reactLocalStorage.get("username"), (currentUser) => {
+      if (!currentUser) {
+        let username = prompt("Please enter your name:", "");
+        reactLocalStorage.set("username", username);
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [usernameLocalStorage]);
+
+  return (
+    <AppWrapper>{usernameLocalStorage && usernameLocalStorage}</AppWrapper>
+  );
+};
 
 export default App;
