@@ -2,32 +2,47 @@ import React, { useEffect, useState } from "react";
 import { AppWrapper } from "./styles/BasicStyles";
 import { reactLocalStorage } from "reactjs-localstorage";
 import { useStateWithCallbackLazy } from "use-state-with-callback";
-import { FormControl, TextField, Button } from "@material-ui/core";
+import {
+  FormControl,
+  TextField,
+  Button,
+  CircularProgress,
+} from "@material-ui/core";
 import {
   MuiPickersUtilsProvider,
   KeyboardDatePicker,
 } from "@material-ui/pickers";
 import DateFnsUtils from "@date-io/date-fns";
 import "date-fns";
+import { isUserEmpty } from "./utils";
+import Login from "./components/Login";
 
 const App = () => {
   const [values, setValues] = useState({
     firstName: "",
   });
   const [dateOfBirth, setSelectedDate] = useState(null);
-  const [userLocalStorage, setUserLocalStorage] = useStateWithCallbackLazy({});
+  const [userLocalStorage, setUserLocalStorage] = useStateWithCallbackLazy({
+    name: "",
+    dateOfBirth: "",
+  });
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isSubmited, setIsSubmited] = useState(false);
 
   useEffect(() => {
     let user = reactLocalStorage.get("user");
-    user = user === undefined ? "" : JSON.parse(user);
-    console.log(user);
-    setUserLocalStorage(user, (currentUser) => {
-      console.log(currentUser);
+    user =
+      user === undefined
+        ? {
+            name: "",
+            dateOfBirth: "",
+          }
+        : JSON.parse(user);
+    setUserLocalStorage(user, () => {
       setIsLoaded(true);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userLocalStorage.name, userLocalStorage.dateOfBirth]);
+  }, [isSubmited]);
 
   const handleChange = (prop) => (event) => {
     setValues({ ...values, [prop]: event.target.value });
@@ -41,10 +56,7 @@ const App = () => {
       dateOfBirth: dateOfBirth,
     };
     reactLocalStorage.set("user", JSON.stringify(user));
-  };
-
-  const isUserEmpty = (user) => {
-    return user === "";
+    setIsSubmited(true);
   };
 
   return isLoaded ? (
@@ -93,17 +105,23 @@ const App = () => {
           </MuiPickersUtilsProvider>
 
           <FormControl margin="normal">
-            <Button variant="contained" color="primary" type="submit">
+            <Button
+              disabled={!(values.firstName !== "" && dateOfBirth !== null)}
+              variant="contained"
+              color="primary"
+              type="submit">
               Submit
             </Button>
           </FormControl>
         </form>
       ) : (
-        <div>{userLocalStorage.name}</div>
+        <Login userLocalStorage={userLocalStorage} />
       )}
     </AppWrapper>
   ) : (
-    <AppWrapper>Loading...</AppWrapper>
+    <AppWrapper>
+      <CircularProgress />
+    </AppWrapper>
   );
 };
 
