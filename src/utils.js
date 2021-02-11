@@ -1,30 +1,22 @@
-export const setCookie = (cname, cvalue) => {
-  document.cookie = cname + "=" + cvalue + ";";
+import moment from "moment";
+
+export const calcNextBirthday = (userLocalStorage) => {
+  const birthdate = moment(userLocalStorage.dateOfBirth).format("YYYY-MM-DD");
+  const today = moment().format("YYYY-MM-DD");
+  const years = moment().diff(birthdate, "years");
+  const adjustToday = birthdate.substring(5) === today.substring(5) ? 0 : 1;
+  const nextBirthday = moment(birthdate).add(years + adjustToday, "years");
+  const daysUntilBirthday = nextBirthday.diff(today, "days");
+  switch (daysUntilBirthday) {
+    case 0:
+      return "Happy Birthday!";
+    case 1:
+      return `${daysUntilBirthday} day`;
+    default:
+      return `${daysUntilBirthday} days`;
+  }
 };
 
-export const getCookie = (cname) => {
-  var name = cname + "=";
-  var ca = document.cookie.split(";");
-  for (var i = 0; i < ca.length; i++) {
-    var c = ca[i];
-    while (c.charAt(0) === " ") {
-      c = c.substring(1);
-    }
-    if (c.indexOf(name) === 0) {
-      return c.substring(name.length, c.length);
-    }
-  }
-  return "";
-};
-
-export const checkCookie = () => {
-  var user = getCookie("username");
-  if (user !== "") {
-    alert("Welcome again " + user);
-  } else {
-    user = prompt("Please enter your name:", "");
-    if (user !== "" && user != null) {
-      setCookie("username", user, 365);
-    }
-  }
+export const isUserEmpty = (user) => {
+  return Object.values(user).filter((value) => value !== "").length === 0;
 };
