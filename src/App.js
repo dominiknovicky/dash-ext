@@ -6,8 +6,9 @@ import { CircularProgress } from "@material-ui/core";
 import { isUserEmpty, doesUserExist } from "./utils";
 import Dashboard from "./components/Dashboard";
 import Login from "./components/Login";
+import { withTheme } from "@material-ui/styles";
 
-const App = () => {
+const App = ({ theme }) => {
   const [values, setValues] = useState({
     firstName: "",
   });
@@ -44,7 +45,7 @@ const App = () => {
   };
 
   return isLoaded ? (
-    <AppWrapper>
+    <AppWrapper color={theme.palette.background}>
       {isUserEmpty(userLocalStorage) ? (
         <Login
           handleSubmit={handleSubmit}
@@ -58,10 +59,10 @@ const App = () => {
       )}
     </AppWrapper>
   ) : (
-    <AppWrapper>
+    <AppWrapper color={theme.palette.background}>
       <CircularProgress />
     </AppWrapper>
   );
 };
 
-export default App;
+export default withTheme(App);
