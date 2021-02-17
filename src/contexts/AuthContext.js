@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useMemo,
+} from "react";
 import { useStateWithCallbackLazy } from "use-state-with-callback";
 
 import { auth } from "../firebase";
@@ -15,15 +21,20 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
-      setCurrentUser(user, () => setIsLoaded(true));
+      setCurrentUser(user, () => {
+        setIsLoaded(true);
+        console.log(user);
+      });
     });
     return unsubscribe;
   }, []);
 
-  const value = {
-    currentUser,
-    isLoaded,
-  };
+  // const value = {
+  //   currentUser,
+  //   isLoaded,
+  // };
+
+  const value = useMemo(() => [isLoaded, setIsLoaded], [isLoaded], currentUser);
 
   return (
     <AuthContext.Provider value={value}>

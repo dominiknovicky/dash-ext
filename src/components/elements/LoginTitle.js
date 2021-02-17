@@ -28,7 +28,6 @@ const LoginTitle = () => {
         className={classes.title_h4_primary}
         variant="h4"
         component="span">
-        {" "}
         <b>-BOARD</b>
       </Typography>
     </Typography>

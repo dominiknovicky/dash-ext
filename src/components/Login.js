@@ -30,17 +30,17 @@ const Login = ({
   setdateOfBirth,
   theme,
 }) => {
-  const [currentUser, setCurrentUser] = useStateWithCallbackLazy(null);
-  const [isLoaded, setIsLoaded] = useContext(LoadingContext);
+  // const [currentUser, setCurrentUser] = useStateWithCallbackLazy(null);
+  // const [isLoaded, setIsLoaded] = useContext(LoadingContext);
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      console.log(!!user);
-      setCurrentUser(currentUser, () => {
-        setIsLoaded(true);
-      });
-    });
-    return unsubscribe;
+    // const unsubscribe = auth.onAuthStateChanged((user) => {
+    //   console.log(!!user);
+    //   setCurrentUser(currentUser, () => {
+    //     setIsLoaded(true);
+    //   });
+    // });
+    // return unsubscribe;
   }, []);
 
   return (
