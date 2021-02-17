@@ -29,7 +29,7 @@ const LoginTitle = () => {
         variant="h4"
         component="span">
         {" "}
-        <b>- BOARD</b>
+        <b>-BOARD</b>
       </Typography>
     </Typography>
   );

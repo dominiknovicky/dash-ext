@@ -28,6 +28,7 @@ const Login = ({
   handleChange,
   dateOfBirth,
   setdateOfBirth,
+  theme,
 }) => {
   const [currentUser, setCurrentUser] = useStateWithCallbackLazy(null);
   const [isLoaded, setIsLoaded] = useContext(LoadingContext);
@@ -93,7 +94,7 @@ const Login = ({
         </Button>
       </FormControl>
 
-      <Divider text="or" />
+      <Divider text="or" color={theme.palette.secondary} />
 
       <StyledFirebaseAuth uiConfig={uiConfig} firebaseAuth={firebase.auth()} />
     </form>

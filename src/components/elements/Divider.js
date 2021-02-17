@@ -7,26 +7,28 @@ const DividerWrapper = styled.div`
   align-items: center;
   position: relative;
   width: 100%;
-  opacity: 0.25;
   height: 27.5px;
   margin-top: 10px;
 `;
 
 const HorizontalLine = styled.hr`
   width: 100%;
-  border-top: 1px solid black;
+  border-top: 1px solid #000;
+  opacity: 0.1;
 `;
 
 const Text = styled.span`
   padding: 0 10px;
   height: 100%;
+  color: ${({ color }) => color.main};
+  font-weight: 500;
 `;
 
-const Divider = ({ text }) => {
+const Divider = ({ text, color }) => {
   return (
     <DividerWrapper>
       <HorizontalLine />
-      <Text>{text}</Text>
+      <Text color={color}>{text}</Text>
       <HorizontalLine />
     </DividerWrapper>
   );

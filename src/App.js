@@ -53,6 +53,7 @@ const App = ({ theme }) => {
           handleChange={handleChange}
           dateOfBirth={dateOfBirth}
           setdateOfBirth={setdateOfBirth}
+          theme={theme}
         />
       ) : (
         <Dashboard userLocalStorage={userLocalStorage} />
