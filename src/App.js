@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from "react";
-import { AppWrapper } from "./styles/BasicStyles";
+import React, { useEffect, useState, useContext } from "react";
 import { reactLocalStorage } from "reactjs-localstorage";
 import { useStateWithCallbackLazy } from "use-state-with-callback";
-import { CircularProgress } from "@material-ui/core";
 import { isUserEmpty, doesUserExist } from "./utils";
 import Dashboard from "./components/Dashboard";
 import Login from "./components/Login";
 import { withTheme } from "@material-ui/styles";
+import Homepage from "./components/Homepage";
+import { LoadingContext } from "./contexts/LoadingContext";
 
 const App = ({ theme }) => {
   const [values, setValues] = useState({
@@ -17,8 +17,8 @@ const App = ({ theme }) => {
     name: "",
     dateOfBirth: "",
   });
-  const [isLoaded, setIsLoaded] = useState(false);
   const [isSubmited, setIsSubmited] = useState(false);
+  const [isLoaded, setIsLoaded] = useContext(LoadingContext);
 
   useEffect(() => {
     let user = reactLocalStorage.get("user");
@@ -44,8 +44,8 @@ const App = ({ theme }) => {
     setIsSubmited(true);
   };
 
-  return isLoaded ? (
-    <AppWrapper color={theme.palette.background}>
+  return (
+    <Homepage theme={theme} isLoaded={isLoaded}>
       {isUserEmpty(userLocalStorage) ? (
         <Login
           handleSubmit={handleSubmit}
@@ -57,11 +57,7 @@ const App = ({ theme }) => {
       ) : (
         <Dashboard userLocalStorage={userLocalStorage} />
       )}
-    </AppWrapper>
-  ) : (
-    <AppWrapper color={theme.palette.background}>
-      <CircularProgress />
-    </AppWrapper>
+    </Homepage>
   );
 };
 
