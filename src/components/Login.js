@@ -11,17 +11,15 @@ import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth";
 import LoginTitle from "./elements/LoginTitle";
 import Divider from "./elements/Divider";
 import { reactLocalStorage } from "reactjs-localstorage";
-import { isUserEmpty, doesUserExist } from "../utils";
+import { isUserEmpty, parseUserFromLocalStorage } from "../utils";
 import { withTheme } from "@material-ui/styles";
 import { useAuth } from "../contexts/AuthContext";
 import { Link, goBack, goTo, popToTop } from "react-chrome-extension-router";
 import Dashboard from "./Dashboard";
+import DashboardOffline from "./DashboardOffline";
+
 const uiConfig = {
-  // Popup signin flow rather than redirect flow.
   signInFlow: "popup",
-  // Redirect to /signedIn after sign in is successful. Alternatively you can provide a callbacks.signInSuccess function.
-  signInSuccessUrl: "/signedIn",
-  // We will display Google and Facebook as auth providers.
   signInOptions: [firebase.auth.GoogleAuthProvider.PROVIDER_ID],
 };
 
@@ -30,17 +28,21 @@ const Login = ({ theme }) => {
     firstName: "",
   });
   const [dateOfBirth, setdateOfBirth] = useState(null);
-  const [userLocalStorage, setUserLocalStorage] = useStateWithCallbackLazy({
-    name: "",
-    dateOfBirth: "",
-  });
+  const [userLocalStorage, setUserLocalStorage] = useStateWithCallbackLazy(
+    null
+  );
   const [isSubmited, setIsSubmited] = useState(false);
   const { currentUser } = useAuth();
 
   useEffect(() => {
-    if (currentUser) goTo(Dashboard, { theme });
+    console.log(!!(userLocalStorage && !!currentUser));
+    if (!!currentUser) goTo(Dashboard, { theme });
+
     let user = reactLocalStorage.get("user");
-    user = doesUserExist(user);
+    user = parseUserFromLocalStorage(user);
+    console.log("local", !!user);
+    if (!!user) goTo(DashboardOffline, { theme });
+
     setUserLocalStorage(user, () => {
       // setIsLoaded(true);
     });
@@ -62,7 +64,8 @@ const Login = ({ theme }) => {
     setIsSubmited(true);
   };
 
-  return (
+  // fix this
+  return !!(userLocalStorage && !!currentUser) ? (
     <form
       onSubmit={handleSubmit}
       style={{
@@ -117,7 +120,7 @@ const Login = ({ theme }) => {
 
       <StyledFirebaseAuth uiConfig={uiConfig} firebaseAuth={firebase.auth()} />
     </form>
-  );
+  ) : null;
 };
 
 export default withTheme(Login);

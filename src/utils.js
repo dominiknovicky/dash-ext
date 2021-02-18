@@ -23,13 +23,8 @@ export const isUserEmpty = (user) => {
   return Object.values(user).filter((value) => value !== "").length === 0;
 };
 
-export const doesUserExist = (user) => {
-  return user === undefined
-    ? {
-        name: "",
-        dateOfBirth: "",
-      }
-    : JSON.parse(user);
+export const parseUserFromLocalStorage = (user) => {
+  return user === undefined ? null : JSON.parse(user);
 };
 
 // GLOBAL

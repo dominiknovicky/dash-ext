@@ -11,6 +11,7 @@ import {
 } from "react-chrome-extension-router";
 import { AppWrapper } from "./styles/BasicStyles";
 import Login from "./components/Login";
+import Dashboard from "./components/Dashboard";
 
 const App = () => {
   useEffect(() => {

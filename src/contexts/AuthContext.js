@@ -13,6 +13,10 @@ export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useStateWithCallbackLazy();
   const [isLoaded, setIsLoaded] = useState(false);
 
+  function signOut() {
+    return auth.signOut();
+  }
+
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       setCurrentUser(user, () => setIsLoaded(true));
@@ -25,6 +29,7 @@ export function AuthProvider({ children }) {
   const value = {
     currentUser,
     isLoaded,
+    signOut,
   };
 
   return isLoaded ? (
