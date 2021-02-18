@@ -6,13 +6,16 @@ import {
 } from "@material-ui/pickers";
 import DateFnsUtils from "@date-io/date-fns";
 import firebase from "firebase/app";
-import { auth } from "../firebase";
 import { useStateWithCallbackLazy } from "use-state-with-callback";
-import { LoadingContext } from "../contexts/LoadingContext";
 import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth";
 import LoginTitle from "./elements/LoginTitle";
 import Divider from "./elements/Divider";
-
+import { reactLocalStorage } from "reactjs-localstorage";
+import { isUserEmpty, doesUserExist } from "../utils";
+import { withTheme } from "@material-ui/styles";
+import { useAuth } from "../contexts/AuthContext";
+import { Link, goBack, goTo, popToTop } from "react-chrome-extension-router";
+import Dashboard from "./Dashboard";
 const uiConfig = {
   // Popup signin flow rather than redirect flow.
   signInFlow: "popup",
@@ -22,26 +25,42 @@ const uiConfig = {
   signInOptions: [firebase.auth.GoogleAuthProvider.PROVIDER_ID],
 };
 
-const Login = ({
-  handleSubmit,
-  values,
-  handleChange,
-  dateOfBirth,
-  setdateOfBirth,
-  theme,
-}) => {
-  // const [currentUser, setCurrentUser] = useStateWithCallbackLazy(null);
-  // const [isLoaded, setIsLoaded] = useContext(LoadingContext);
+const Login = ({ theme }) => {
+  const [values, setValues] = useState({
+    firstName: "",
+  });
+  const [dateOfBirth, setdateOfBirth] = useState(null);
+  const [userLocalStorage, setUserLocalStorage] = useStateWithCallbackLazy({
+    name: "",
+    dateOfBirth: "",
+  });
+  const [isSubmited, setIsSubmited] = useState(false);
+  const { currentUser } = useAuth();
 
   useEffect(() => {
-    // const unsubscribe = auth.onAuthStateChanged((user) => {
-    //   console.log(!!user);
-    //   setCurrentUser(currentUser, () => {
-    //     setIsLoaded(true);
-    //   });
-    // });
-    // return unsubscribe;
-  }, []);
+    if (currentUser) goTo(Dashboard, { theme });
+    let user = reactLocalStorage.get("user");
+    user = doesUserExist(user);
+    setUserLocalStorage(user, () => {
+      // setIsLoaded(true);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSubmited]);
+
+  const handleChange = (prop) => (event) => {
+    setValues({ ...values, [prop]: event.target.value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    const user = {
+      name: values.firstName,
+      dateOfBirth: dateOfBirth,
+    };
+    reactLocalStorage.set("user", JSON.stringify(user));
+    setIsSubmited(true);
+  };
 
   return (
     <form
@@ -101,4 +120,4 @@ const Login = ({
   );
 };
 
-export default Login;
+export default withTheme(Login);
