@@ -12,6 +12,7 @@ import {
 import { AppWrapper } from "./styles/BasicStyles";
 import Login from "./components/Login";
 import Dashboard from "./components/Dashboard";
+import Application from "./components/Application";
 
 const App = () => {
   useEffect(() => {
@@ -30,7 +31,7 @@ const App = () => {
       <ThemeProvider theme={theme}>
         <AppWrapper>
           <AuthProvider>
-            <Login />
+            <Application />
           </AuthProvider>
         </AppWrapper>
       </ThemeProvider>

@@ -35,12 +35,10 @@ const Login = ({ theme }) => {
   const { currentUser } = useAuth();
 
   useEffect(() => {
-    console.log(!!(userLocalStorage && !!currentUser));
     if (!!currentUser) goTo(Dashboard, { theme });
 
     let user = reactLocalStorage.get("user");
     user = parseUserFromLocalStorage(user);
-    console.log("local", !!user);
     if (!!user) goTo(DashboardOffline, { theme });
 
     setUserLocalStorage(user, () => {
@@ -65,62 +63,67 @@ const Login = ({ theme }) => {
   };
 
   // fix this
-  return !!(userLocalStorage && !!currentUser) ? (
-    <form
-      onSubmit={handleSubmit}
-      style={{
-        flexDirection: "column",
-        display: "flex",
-        maxWidth: "300px",
-        width: "100%",
-      }}>
-      <LoginTitle />
+  return (
+    !(!!userLocalStorage && !!currentUser) && (
+      <form
+        onSubmit={handleSubmit}
+        style={{
+          flexDirection: "column",
+          display: "flex",
+          maxWidth: "300px",
+          width: "100%",
+        }}>
+        <LoginTitle />
 
-      <FormControl>
-        <TextField
-          required
-          margin="normal"
-          id="firstName"
-          label="First Name"
-          variant="outlined"
-          value={values.firstName}
-          onChange={handleChange("firstName")}
-          type="text"
+        <FormControl>
+          <TextField
+            required
+            margin="normal"
+            id="firstName"
+            label="First Name"
+            variant="outlined"
+            value={values.firstName}
+            onChange={handleChange("firstName")}
+            type="text"
+          />
+        </FormControl>
+
+        <MuiPickersUtilsProvider utils={DateFnsUtils}>
+          <KeyboardDatePicker
+            required
+            margin="normal"
+            disableFuture
+            inputVariant="outlined"
+            id="dateOfBirth"
+            label="Date of Birth"
+            format="dd/MM/yyyy"
+            value={dateOfBirth}
+            onChange={setdateOfBirth}
+            KeyboardButtonProps={{
+              "aria-label": "change date",
+            }}
+          />
+        </MuiPickersUtilsProvider>
+
+        <FormControl margin="normal">
+          <Button
+            disabled={!(values.firstName !== "" && dateOfBirth !== null)}
+            variant="contained"
+            color="primary"
+            type="submit">
+            Submit
+          </Button>
+        </FormControl>
+
+        <Divider text="or" color={theme.palette.secondary} />
+
+        <StyledFirebaseAuth
+          uiConfig={uiConfig}
+          firebaseAuth={firebase.auth()}
         />
-      </FormControl>
-
-      <MuiPickersUtilsProvider utils={DateFnsUtils}>
-        <KeyboardDatePicker
-          required
-          margin="normal"
-          disableFuture
-          inputVariant="outlined"
-          id="dateOfBirth"
-          label="Date of Birth"
-          format="dd/MM/yyyy"
-          value={dateOfBirth}
-          onChange={setdateOfBirth}
-          KeyboardButtonProps={{
-            "aria-label": "change date",
-          }}
-        />
-      </MuiPickersUtilsProvider>
-
-      <FormControl margin="normal">
-        <Button
-          disabled={!(values.firstName !== "" && dateOfBirth !== null)}
-          variant="contained"
-          color="primary"
-          type="submit">
-          Submit
-        </Button>
-      </FormControl>
-
-      <Divider text="or" color={theme.palette.secondary} />
-
-      <StyledFirebaseAuth uiConfig={uiConfig} firebaseAuth={firebase.auth()} />
-    </form>
-  ) : null;
+      </form>
+    )
+  );
 };
 
 export default withTheme(Login);
