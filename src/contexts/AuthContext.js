@@ -11,18 +11,17 @@ export function useAuth() {
   return useContext(AuthContext);
 }
 
+export function signOut() {
+  return auth.signOut();
+}
+
 export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useStateWithCallbackLazy();
   const [localUser, setLocalUser] = useStateWithCallbackLazy();
   const [isUserLoaded, setIsUserLoaded] = useState(false);
   const [isLocalLoaded, setIsLocalLoaded] = useState(false);
 
-  function signOut() {
-    return auth.signOut();
-  }
-
   useEffect(() => {
-    // auth.signOut();
     const unsubscribe = auth.onAuthStateChanged((user) => {
       setCurrentUser(user, () => setIsUserLoaded(true));
     });
@@ -45,7 +44,7 @@ export function AuthProvider({ children }) {
   return isUserLoaded && isLocalLoaded ? (
     <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
   ) : (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider value={null}>
       <CircularProgress />
     </AuthContext.Provider>
   );

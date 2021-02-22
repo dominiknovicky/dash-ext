@@ -2,6 +2,9 @@ import React from "react";
 import { calcNextBirthday } from "../utils";
 import { Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
+import { withTheme } from "@material-ui/core/styles";
+import { useAuth } from "../contexts/AuthContext";
+import { getFirstName } from "../utils";
 
 const DashboardOffline = ({ theme }) => {
   const useStyles = makeStyles(() => ({
@@ -13,19 +16,25 @@ const DashboardOffline = ({ theme }) => {
     },
   }));
   const classes = useStyles();
+  const { localUser } = useAuth();
+
+  console.log(localUser);
 
   return (
-    <>
-      <span>Offline Dashboard</span>
+    localUser && (
+      <>
+        <span>Offline Dashboard</span>
+        <span>{getFirstName(localUser.name)} </span>
 
-      {/* <Typography variant="h1" gutterBottom className={classes.title_h1}>
+        {/* <Typography variant="h1" gutterBottom className={classes.title_h1}>
         Hello <b>{userLocalStorage.name.toUpperCase()}</b>.
       </Typography>
       <Typography className={classes.title_h4} variant="h4">
         {calcNextBirthday(userLocalStorage)}
       </Typography> */}
-    </>
+      </>
+    )
   );
 };
 
-export default DashboardOffline;
+export default withTheme(DashboardOffline);

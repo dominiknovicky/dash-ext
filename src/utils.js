@@ -18,11 +18,11 @@ export const calcNextBirthday = (userLocalStorage) => {
   }
 };
 
-// APP
-export const isUserEmpty = (user) => {
-  return Object.values(user).filter((value) => value !== "").length === 0;
+export const getFirstName = (displayName) => {
+  return displayName.split(" ")[0];
 };
 
+// APP
 export const parseUserFromLocalStorage = (user) => {
   return user === undefined ? null : JSON.parse(user);
 };
