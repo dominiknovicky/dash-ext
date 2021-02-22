@@ -1,15 +1,13 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { calcNextBirthday } from "../utils";
 import { Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
-import { useAuth, signOut } from "../contexts/AuthContext";
 import { withTheme } from "@material-ui/core/styles";
 import { getFirstName } from "../utils";
 import { auth } from "../firebase";
 import { popToTop } from "react-chrome-extension-router";
-import Login from "./Login";
 
-const Dashboard = ({ theme, currentUser }) => {
+const Dashboard = ({ theme }) => {
   const useStyles = makeStyles(() => ({
     title_h1: {
       color: theme.palette.primary.main,
@@ -19,6 +17,17 @@ const Dashboard = ({ theme, currentUser }) => {
     },
   }));
   const classes = useStyles();
+
+  const [currentUser, setCurrentUser] = useState();
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      setCurrentUser(user);
+    });
+
+    return unsubscribe;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const signOutAndLeave = () => {
     auth.signOut();

@@ -6,18 +6,16 @@ import {
 } from "@material-ui/pickers";
 import DateFnsUtils from "@date-io/date-fns";
 import firebase from "firebase/app";
-import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth";
-import LoginTitle from "./elements/LoginTitle";
-import Divider from "./elements/Divider";
 import { reactLocalStorage } from "reactjs-localstorage";
 import { withTheme } from "@material-ui/styles";
 import { goTo } from "react-chrome-extension-router";
-import DashboardOffline from "./DashboardOffline";
 import { auth } from "../firebase";
-import { useStateWithCallbackLazy } from "use-state-with-callback";
-import { parseUserFromLocalStorage } from "../utils";
-import Dashboard from "./Dashboard";
 import { CircularProgress } from "@material-ui/core";
+import Dashboard from "./Dashboard";
+import DashboardOffline from "./DashboardOffline";
+import Divider from "./elements/Divider";
+import LoginTitle from "./elements/LoginTitle";
+import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth";
 
 const uiConfig = {
   signInFlow: "popup",
@@ -30,29 +28,25 @@ const Login = ({ theme }) => {
     firstName: "",
   });
   const [dateOfBirth, setdateOfBirth] = useState(null);
-  const [isSubmited, setIsSubmited] = useState(false);
-  const [currentUser, setCurrentUser] = useStateWithCallbackLazy();
-  const [localUser, setLocalUser] = useStateWithCallbackLazy();
   const [isUserLoaded, setIsUserLoaded] = useState(false);
   const [isLocalLoaded, setIsLocalLoaded] = useState(false);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
-      setCurrentUser(user, () => {
-        setIsUserLoaded(true);
-        if (!!user) goTo(Dashboard);
-      });
+      setIsUserLoaded(true);
+      if (!!user) goTo(Dashboard);
     });
 
     const localUser = reactLocalStorage.get("user");
-    setLocalUser(parseUserFromLocalStorage(localUser), () => {
-      setIsLocalLoaded(true);
-      if (!!localUser) goTo(DashboardOffline);
-    });
+    setIsLocalLoaded(true);
+    console.log(!!localUser);
+    if (!!localUser) goTo(DashboardOffline);
 
     return unsubscribe;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {});
 
   const handleChange = (prop) => (event) => {
     setValues({ ...values, [prop]: event.target.value });
@@ -66,7 +60,7 @@ const Login = ({ theme }) => {
       dateOfBirth: dateOfBirth,
     };
     reactLocalStorage.set("user", JSON.stringify(localUser));
-    goTo(DashboardOffline, { localUser });
+    goTo(DashboardOffline);
   };
 
   return !isUserLoaded || !isLocalLoaded ? (
