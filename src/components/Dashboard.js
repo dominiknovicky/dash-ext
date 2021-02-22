@@ -5,8 +5,11 @@ import { makeStyles } from "@material-ui/styles";
 import { useAuth, signOut } from "../contexts/AuthContext";
 import { withTheme } from "@material-ui/core/styles";
 import { getFirstName } from "../utils";
+import { auth } from "../firebase";
+import { popToTop } from "react-chrome-extension-router";
+import Login from "./Login";
 
-const Dashboard = ({ theme }) => {
+const Dashboard = ({ theme, currentUser }) => {
   const useStyles = makeStyles(() => ({
     title_h1: {
       color: theme.palette.primary.main,
@@ -16,16 +19,18 @@ const Dashboard = ({ theme }) => {
     },
   }));
   const classes = useStyles();
-  const { currentUser } = useAuth();
+
+  const signOutAndLeave = () => {
+    auth.signOut();
+    popToTop();
+  };
 
   return (
-    currentUser && (
-      <>
-        <span>Online Dashboard </span>
-        <span>{getFirstName(currentUser.displayName)} </span>
-        <button onClick={() => signOut()}>Sign Out</button>
-      </>
-    )
+    <>
+      <span>Online Dashboard </span>
+      <span>{currentUser && getFirstName(currentUser.displayName)} </span>
+      <button onClick={signOutAndLeave}>Sign Out</button>
+    </>
   );
 };
 

@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { calcNextBirthday } from "../utils";
-import { Typography } from "@material-ui/core";
+import { Typography, Button } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import { withTheme } from "@material-ui/core/styles";
-import { useAuth } from "../contexts/AuthContext";
-import { getFirstName } from "../utils";
+import { useStateWithCallbackLazy } from "use-state-with-callback";
+import { reactLocalStorage } from "reactjs-localstorage";
+import { parseUserFromLocalStorage } from "../utils";
+import { popToTop } from "react-chrome-extension-router";
 
 const DashboardOffline = ({ theme }) => {
   const useStyles = makeStyles(() => ({
@@ -16,25 +18,33 @@ const DashboardOffline = ({ theme }) => {
     },
   }));
   const classes = useStyles();
-  const { localUser } = useAuth();
+  const [localUser, setLocalUser] = useStateWithCallbackLazy();
+  const [isLocalLoaded, setIsLocalLoaded] = useState(false);
 
-  console.log(localUser);
+  useEffect(() => {
+    const localUser = reactLocalStorage.get("user");
+    setLocalUser(parseUserFromLocalStorage(localUser), () =>
+      setIsLocalLoaded(true)
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  return (
-    localUser && (
-      <>
-        <span>Offline Dashboard</span>
-        <span>{getFirstName(localUser.name)} </span>
+  const signOutAndLeave = () => {
+    reactLocalStorage.remove("user");
+    popToTop();
+  };
 
-        {/* <Typography variant="h1" gutterBottom className={classes.title_h1}>
-        Hello <b>{userLocalStorage.name.toUpperCase()}</b>.
+  return isLocalLoaded ? (
+    <>
+      <Typography variant="h1" gutterBottom className={classes.title_h1}>
+        Hello <b>{localUser.name.toUpperCase()}</b>.
       </Typography>
       <Typography className={classes.title_h4} variant="h4">
-        {calcNextBirthday(userLocalStorage)}
-      </Typography> */}
-      </>
-    )
-  );
+        {calcNextBirthday(localUser)}
+      </Typography>
+      <Button onClick={signOutAndLeave}>Sign Out</Button>
+    </>
+  ) : null;
 };
 
 export default withTheme(DashboardOffline);

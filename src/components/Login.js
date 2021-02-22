@@ -13,6 +13,11 @@ import { reactLocalStorage } from "reactjs-localstorage";
 import { withTheme } from "@material-ui/styles";
 import { goTo } from "react-chrome-extension-router";
 import DashboardOffline from "./DashboardOffline";
+import { auth } from "../firebase";
+import { useStateWithCallbackLazy } from "use-state-with-callback";
+import { parseUserFromLocalStorage } from "../utils";
+import Dashboard from "./Dashboard";
+import { CircularProgress } from "@material-ui/core";
 
 const uiConfig = {
   signInFlow: "popup",
@@ -26,8 +31,28 @@ const Login = ({ theme }) => {
   });
   const [dateOfBirth, setdateOfBirth] = useState(null);
   const [isSubmited, setIsSubmited] = useState(false);
+  const [currentUser, setCurrentUser] = useStateWithCallbackLazy();
+  const [localUser, setLocalUser] = useStateWithCallbackLazy();
+  const [isUserLoaded, setIsUserLoaded] = useState(false);
+  const [isLocalLoaded, setIsLocalLoaded] = useState(false);
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      setCurrentUser(user, () => {
+        setIsUserLoaded(true);
+        if (!!user) goTo(Dashboard);
+      });
+    });
+
+    const localUser = reactLocalStorage.get("user");
+    setLocalUser(parseUserFromLocalStorage(localUser), () => {
+      setIsLocalLoaded(true);
+      if (!!localUser) goTo(DashboardOffline);
+    });
+
+    return unsubscribe;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleChange = (prop) => (event) => {
     setValues({ ...values, [prop]: event.target.value });
@@ -36,15 +61,17 @@ const Login = ({ theme }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const user = {
+    const localUser = {
       name: values.firstName,
       dateOfBirth: dateOfBirth,
     };
-    reactLocalStorage.set("user", JSON.stringify(user));
-    goTo(DashboardOffline);
+    reactLocalStorage.set("user", JSON.stringify(localUser));
+    goTo(DashboardOffline, { localUser });
   };
 
-  return (
+  return !isUserLoaded || !isLocalLoaded ? (
+    <CircularProgress />
+  ) : (
     <form
       onSubmit={handleSubmit}
       style={{
