@@ -46,8 +46,6 @@ const Login = ({ theme }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLocalLoaded]);
 
-  useEffect(() => {});
-
   const handleChange = (prop) => (event) => {
     setValues({ ...values, [prop]: event.target.value });
   };

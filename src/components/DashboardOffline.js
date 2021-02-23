@@ -2,11 +2,11 @@ import React, { useEffect, useState } from "react";
 import { calcNextBirthday } from "../utils";
 import {
   Typography,
-  Button,
   Fab,
   Menu,
   MenuItem,
   Fade,
+  Button,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import { useStateWithCallbackLazy } from "use-state-with-callback";
@@ -19,13 +19,15 @@ import { AppWrapper } from "../styles/BasicStyles";
 import theme from "../theme";
 import { ThemeProvider } from "@material-ui/core/styles";
 import SettingsIcon from "@material-ui/icons/Settings";
+import ExitToAppIcon from "@material-ui/icons/ExitToApp";
+import AccountCircleIcon from "@material-ui/icons/AccountCircle";
 
 const DashboardOffline = () => {
   const useStyles = makeStyles(() => ({
-    title_h1: {
+    title_p_main: {
       color: theme.palette.primary.main,
     },
-    title_h4: {
+    title_s_dark: {
       color: theme.palette.secondary.dark,
     },
     fab: {
@@ -64,13 +66,12 @@ const DashboardOffline = () => {
   return isLocalLoaded ? (
     <ThemeProvider theme={theme}>
       <AppWrapper>
-        <Typography variant="h1" gutterBottom className={classes.title_h1}>
+        <Typography variant="h1" gutterBottom className={classes.title_p_main}>
           Hello <b>{getFirstName(localUser.name.toUpperCase())}</b>.
         </Typography>
-        <Typography className={classes.title_h4} variant="h4">
+        <Typography className={classes.title_s_dark} variant="h4">
           {calcNextBirthday(localUser)}
         </Typography>
-
         <Fab
           className={classes.fab}
           color="secondary"
@@ -87,9 +88,20 @@ const DashboardOffline = () => {
           open={open}
           onClose={handleClose}
           TransitionComponent={Fade}>
-          {/* <MenuItem onClick={handleClose}>Profile</MenuItem>
-          <MenuItem onClick={handleClose}>My account</MenuItem> */}
-          <MenuItem onClick={logoutAndLeave}>Logout</MenuItem>
+          <MenuItem
+            className={classes.title_s_dark}
+            onClick={logoutAndLeave}
+            style={{ fontSize: 14, fontWeight: 500 }}>
+            <AccountCircleIcon style={{ marginRight: 10, fontSize: 20 }} />
+            <span style={{ textTransform: "uppercase" }}>Profile</span>
+          </MenuItem>
+          <MenuItem
+            onClick={logoutAndLeave}
+            className={classes.title_s_dark}
+            style={{ fontSize: 14, fontWeight: 500 }}>
+            <ExitToAppIcon style={{ marginRight: 10, fontSize: 20 }} />
+            <span style={{ textTransform: "uppercase" }}>Logout</span>
+          </MenuItem>
         </Menu>
       </AppWrapper>
     </ThemeProvider>
