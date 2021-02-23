@@ -16,6 +16,7 @@ import DashboardOffline from "./DashboardOffline";
 import Divider from "./elements/Divider";
 import LoginTitle from "./elements/LoginTitle";
 import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth";
+import { parseUserFromLocalStorage } from "../utils";
 
 const uiConfig = {
   signInFlow: "popup",
@@ -39,12 +40,11 @@ const Login = ({ theme }) => {
 
     const localUser = reactLocalStorage.get("user");
     setIsLocalLoaded(true);
-    console.log(!!localUser);
-    if (!!localUser) goTo(DashboardOffline);
+    if (!!parseUserFromLocalStorage(localUser)) goTo(DashboardOffline);
 
     return unsubscribe;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isLocalLoaded]);
 
   useEffect(() => {});
 

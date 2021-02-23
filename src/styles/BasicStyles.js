@@ -10,4 +10,5 @@ export const AppWrapper = styled.div`
   justify-content: center;
   align-items: center;
   flex-direction: column;
+  position: relative;
 `;
