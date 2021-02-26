@@ -1,13 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { calcNextBirthday } from "../utils";
-import {
-  Typography,
-  Fab,
-  Menu,
-  MenuItem,
-  Fade,
-  Button,
-} from "@material-ui/core";
+import { Typography, Fab, Menu, MenuItem, Fade } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import { useStateWithCallbackLazy } from "use-state-with-callback";
 import { reactLocalStorage } from "reactjs-localstorage";
@@ -90,7 +83,7 @@ const DashboardOffline = () => {
           TransitionComponent={Fade}>
           <MenuItem
             className={classes.title_s_dark}
-            onClick={logoutAndLeave}
+            // onClick={logoutAndLeave}
             style={{ fontSize: 14, fontWeight: 500 }}>
             <AccountCircleIcon style={{ marginRight: 10, fontSize: 20 }} />
             <span style={{ textTransform: "uppercase" }}>Profile</span>

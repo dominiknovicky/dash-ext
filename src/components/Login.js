@@ -20,7 +20,6 @@ import { parseUserFromLocalStorage } from "../utils";
 
 const uiConfig = {
   signInFlow: "popup",
-  signInSuccessUrl: "/",
   signInOptions: [firebase.auth.GoogleAuthProvider.PROVIDER_ID],
 };
 
@@ -34,17 +33,18 @@ const Login = ({ theme }) => {
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (!!user) goTo(Dashboard, { user });
       setIsUserLoaded(true);
-      if (!!user) goTo(Dashboard);
-    });
 
-    const localUser = reactLocalStorage.get("user");
-    setIsLocalLoaded(true);
-    if (!!parseUserFromLocalStorage(localUser)) goTo(DashboardOffline);
+      let localUser = reactLocalStorage.get("user");
+      localUser = parseUserFromLocalStorage(localUser);
+      if (!!localUser) goTo(DashboardOffline);
+      setIsLocalLoaded(true);
+    });
 
     return unsubscribe;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLocalLoaded]);
+  }, []);
 
   const handleChange = (prop) => (event) => {
     setValues({ ...values, [prop]: event.target.value });
