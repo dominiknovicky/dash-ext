@@ -5,11 +5,9 @@ import {
   KeyboardDatePicker,
 } from "@material-ui/pickers";
 import DateFnsUtils from "@date-io/date-fns";
-import firebase from "firebase/app";
 import { reactLocalStorage } from "reactjs-localstorage";
 import { withTheme } from "@material-ui/styles";
 import { goTo } from "react-chrome-extension-router";
-import { auth } from "../firebase";
 import { CircularProgress } from "@material-ui/core";
 import Dashboard from "./Dashboard";
 import DashboardOffline from "./DashboardOffline";
@@ -17,6 +15,7 @@ import Divider from "./elements/Divider";
 import LoginTitle from "./elements/LoginTitle";
 import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth";
 import { parseUserFromLocalStorage } from "../utils";
+import firebase from "../firebase";
 
 const uiConfig = {
   signInFlow: "popup",
@@ -32,7 +31,7 @@ const Login = ({ theme }) => {
   const [isLocalLoaded, setIsLocalLoaded] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
+    const unsubscribe = firebase.auth().onAuthStateChanged((user) => {
       if (!!user) goTo(Dashboard, { user });
       setIsUserLoaded(true);
 

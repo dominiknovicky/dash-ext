@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { calcNextBirthday } from "../utils";
 import { makeStyles } from "@material-ui/styles";
 import { getFirstName } from "../utils";
-import { auth } from "../firebase";
 import { popToTop } from "react-chrome-extension-router";
 import { useStateWithCallbackLazy } from "use-state-with-callback";
 import { CircularProgress } from "@material-ui/core";
@@ -19,6 +18,7 @@ import {
   MuiPickersUtilsProvider,
   KeyboardDatePicker,
 } from "@material-ui/pickers";
+import firebase from "../firebase";
 
 const Dashboard = ({ user }) => {
   const useStyles = makeStyles(() => ({
@@ -55,7 +55,21 @@ const Dashboard = ({ user }) => {
 
   useEffect(() => {
     setCurrentUser(user, () => {
-      setIsLoaded(true);
+      const docRef = firebase.firestore().collection("users").doc(user.email);
+      docRef
+        .get()
+        .then((doc) => {
+          if (doc.exists) {
+            console.log("Document data:", doc.data());
+          } else {
+            console.log("No such document!");
+          }
+          setIsLoaded(true);
+        })
+        .catch((error) => {
+          console.log("Error getting document:", error);
+          setIsLoaded(true);
+        });
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
@@ -69,8 +83,27 @@ const Dashboard = ({ user }) => {
   };
 
   const signOutAndLeave = () => {
-    auth.signOut();
+    firebase.auth().signOut();
     popToTop();
+  };
+
+  const createUserInFirebase = async () => {
+    const user = {
+      username: currentUser.displayName,
+      email: currentUser.email,
+      dateOfBirth,
+    };
+
+    const db = firebase.firestore();
+    db.collection("users")
+      .doc(currentUser.email)
+      .set(user)
+      .then(() => {
+        console.log("Success");
+      })
+      .catch((error) => {
+        console.error("Error adding document: ", error);
+      });
   };
 
   return currentUser && isLoaded ? (
@@ -107,8 +140,7 @@ const Dashboard = ({ user }) => {
             color="primary"
             aria-label="chevron-right"
             aria-haspopup="false"
-            // onClick={handleClick}
-          >
+            onClick={createUserInFirebase}>
             <ChevronRightRoundedIcon className={classes.sendIcon} />
           </Fab>
         </div>
@@ -149,7 +181,11 @@ const Dashboard = ({ user }) => {
       </AppWrapper>
     </ThemeProvider>
   ) : (
-    <CircularProgress />
+    <ThemeProvider theme={theme}>
+      <AppWrapper>
+        <CircularProgress />
+      </AppWrapper>
+    </ThemeProvider>
   );
 };
 
