@@ -1,8 +1,8 @@
 import moment from "moment";
 
 // DASHBOARD
-export const calcNextBirthday = (userLocalStorage) => {
-  const birthdate = moment(userLocalStorage.dateOfBirth).format("YYYY-MM-DD");
+export const calcNextBirthday = (dateOfBirth) => {
+  const birthdate = moment(dateOfBirth).format("YYYY-MM-DD");
   const today = moment().format("YYYY-MM-DD");
   const years = moment().diff(birthdate, "years");
   const adjustToday = birthdate.substring(5) === today.substring(5) ? 0 : 1;

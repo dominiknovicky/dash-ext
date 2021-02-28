@@ -63,7 +63,7 @@ const DashboardOffline = () => {
           Hello <b>{getFirstName(localUser.name.toUpperCase())}</b>.
         </Typography>
         <Typography className={classes.title_s_dark} variant="h4">
-          {calcNextBirthday(localUser)}
+          {calcNextBirthday(localUser.dateOfBirth)}
         </Typography>
         <Fab
           className={classes.fab}
@@ -81,13 +81,13 @@ const DashboardOffline = () => {
           open={open}
           onClose={handleClose}
           TransitionComponent={Fade}>
-          <MenuItem
+          {/* <MenuItem
             className={classes.title_s_dark}
             // onClick={logoutAndLeave}
             style={{ fontSize: 14, fontWeight: 500 }}>
             <AccountCircleIcon style={{ marginRight: 10, fontSize: 20 }} />
             <span style={{ textTransform: "uppercase" }}>Profile</span>
-          </MenuItem>
+          </MenuItem> */}
           <MenuItem
             onClick={logoutAndLeave}
             className={classes.title_s_dark}

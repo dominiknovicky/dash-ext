@@ -1,20 +1,16 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
-import theme from "./theme";
-import { ThemeProvider } from "@material-ui/core/styles";
 import { Router } from "react-chrome-extension-router";
-import { AppWrapper } from "./styles/BasicStyles";
 import Login from "./components/Login";
+import AppWrapper from "./components/elements/AppWrapper";
 
 const App = () => {
   return (
     <Router>
-      <ThemeProvider theme={theme}>
-        <AppWrapper>
-          <Login />
-        </AppWrapper>
-      </ThemeProvider>
+      <AppWrapper>
+        <Login />
+      </AppWrapper>
     </Router>
   );
 };

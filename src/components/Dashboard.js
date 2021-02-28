@@ -5,9 +5,7 @@ import { getFirstName } from "../utils";
 import { popToTop } from "react-chrome-extension-router";
 import { useStateWithCallbackLazy } from "use-state-with-callback";
 import { CircularProgress } from "@material-ui/core";
-import { AppWrapper } from "../styles/BasicStyles";
 import theme from "../theme";
-import { ThemeProvider } from "@material-ui/core/styles";
 import { Typography, Fab, Menu, MenuItem, Fade } from "@material-ui/core";
 import SettingsIcon from "@material-ui/icons/Settings";
 import ExitToAppIcon from "@material-ui/icons/ExitToApp";
@@ -19,6 +17,7 @@ import {
   KeyboardDatePicker,
 } from "@material-ui/pickers";
 import firebase from "../firebase";
+import AppWrapper from "./elements/AppWrapper";
 
 const Dashboard = ({ user }) => {
   const useStyles = makeStyles(() => ({
@@ -50,29 +49,31 @@ const Dashboard = ({ user }) => {
   const [dateOfBirth, setdateOfBirth] = useState(null);
   const [currentUser, setCurrentUser] = useStateWithCallbackLazy();
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isSubmitted, setisSubmitted] = useState(false);
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
 
   useEffect(() => {
-    setCurrentUser(user, () => {
-      const docRef = firebase.firestore().collection("users").doc(user.email);
-      docRef
-        .get()
-        .then((doc) => {
-          if (doc.exists) {
-            console.log("Document data:", doc.data());
-          } else {
-            console.log("No such document!");
-          }
-          setIsLoaded(true);
-        })
-        .catch((error) => {
-          console.log("Error getting document:", error);
-          setIsLoaded(true);
-        });
-    });
+    const docRef = firebase.firestore().collection("users").doc(user.email);
+    docRef
+      .get()
+      .then((doc) => {
+        if (doc.exists) {
+          setCurrentUser(doc.data(), () => {
+            setIsLoaded(true);
+          });
+        } else {
+          setCurrentUser(user, () => {
+            setIsLoaded(true);
+          });
+        }
+      })
+      .catch((error) => {
+        console.log("Error getting document:", error);
+        setIsLoaded(true);
+      });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+  }, [isSubmitted]);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -87,9 +88,10 @@ const Dashboard = ({ user }) => {
     popToTop();
   };
 
-  const createUserInFirebase = async () => {
+  const createUserInFirebase = () => {
+    setisSubmitted(true);
     const user = {
-      username: currentUser.displayName,
+      displayName: currentUser.displayName,
       email: currentUser.email,
       dateOfBirth,
     };
@@ -100,92 +102,100 @@ const Dashboard = ({ user }) => {
       .set(user)
       .then(() => {
         console.log("Success");
+        setisSubmitted(false);
       })
       .catch((error) => {
         console.error("Error adding document: ", error);
+        setisSubmitted(false);
       });
   };
 
   return currentUser && isLoaded ? (
-    <ThemeProvider theme={theme}>
-      <AppWrapper>
-        <Typography variant="h1" gutterBottom className={classes.title_p_main}>
-          Hello <b>{currentUser && getFirstName(currentUser.displayName)}</b>.
+    <AppWrapper>
+      <Typography variant="h1" gutterBottom className={classes.title_p_main}>
+        Hello <b>{currentUser && getFirstName(currentUser.displayName)}</b>.
+      </Typography>
+      {!currentUser.dateOfBirth && (
+        <>
+          <Typography className={classes.title_s_dark} variant="h6">
+            Please, enter your birth date to continue.
+          </Typography>
+          <div className={classes.inputWrapper}>
+            <MuiPickersUtilsProvider utils={DateFnsUtils}>
+              <KeyboardDatePicker
+                disabled={isSubmitted}
+                required
+                disableFuture
+                inputVariant="outlined"
+                id="dateOfBirth"
+                label="Date of Birth"
+                format="dd/MM/yyyy"
+                value={dateOfBirth}
+                onChange={setdateOfBirth}
+                KeyboardButtonProps={{
+                  "aria-label": "change date",
+                }}
+              />
+            </MuiPickersUtilsProvider>
+            {!isSubmitted && (
+              <Fab
+                disabled={dateOfBirth ? false : true}
+                component="button"
+                size="medium"
+                className={classes.fabSend}
+                color="primary"
+                aria-label="chevron-right"
+                aria-haspopup="false"
+                onClick={createUserInFirebase}>
+                <ChevronRightRoundedIcon className={classes.sendIcon} />
+              </Fab>
+            )}
+            {isSubmitted && (
+              <CircularProgress size={48} className={classes.fabSend} />
+            )}
+          </div>
+        </>
+      )}
+      {currentUser.dateOfBirth && (
+        <Typography className={classes.title_s_dark} variant="h4">
+          {calcNextBirthday(currentUser.dateOfBirth.seconds)}
         </Typography>
-        <Typography className={classes.title_s_dark} variant="h6">
-          Please, enter your birth date to continue.
-        </Typography>
-
-        <div className={classes.inputWrapper}>
-          <MuiPickersUtilsProvider utils={DateFnsUtils}>
-            <KeyboardDatePicker
-              required
-              disableFuture
-              inputVariant="outlined"
-              id="dateOfBirth"
-              label="Date of Birth"
-              format="dd/MM/yyyy"
-              value={dateOfBirth}
-              onChange={setdateOfBirth}
-              KeyboardButtonProps={{
-                "aria-label": "change date",
-              }}
-            />
-          </MuiPickersUtilsProvider>
-          <Fab
-            disabled={dateOfBirth ? false : true}
-            component="button"
-            size="medium"
-            className={classes.fabSend}
-            color="primary"
-            aria-label="chevron-right"
-            aria-haspopup="false"
-            onClick={createUserInFirebase}>
-            <ChevronRightRoundedIcon className={classes.sendIcon} />
-          </Fab>
-        </div>
-
-        {/* <Typography className={classes.title_s_dark} variant="h4">
-          {calcNextBirthday(currentUser)}
-        </Typography> */}
-        <Fab
-          className={classes.fab}
-          color="secondary"
-          aria-controls="fade-menu"
-          aria-haspopup="true"
-          onClick={handleClick}>
-          <SettingsIcon />
-        </Fab>
-        <Menu
-          id="fade-menu"
-          anchorEl={anchorEl}
-          keepMounted
-          open={open}
-          onClose={handleClose}
-          TransitionComponent={Fade}>
-          <MenuItem
+      )}
+      <Fab
+        className={classes.fab}
+        color="secondary"
+        aria-controls="fade-menu"
+        aria-haspopup="true"
+        onClick={handleClick}>
+        <SettingsIcon />
+      </Fab>
+      <Menu
+        id="fade-menu"
+        anchorEl={anchorEl}
+        keepMounted
+        open={open}
+        onClose={handleClose}
+        TransitionComponent={Fade}>
+        {/* <MenuItem
             className={classes.title_s_dark}
             // onClick={signOutAndLeave}
             style={{ fontSize: 14, fontWeight: 500 }}>
             <AccountCircleIcon style={{ marginRight: 10, fontSize: 20 }} />
             <span style={{ textTransform: "uppercase" }}>Profile</span>
-          </MenuItem>
-          <MenuItem
-            onClick={signOutAndLeave}
-            className={classes.title_s_dark}
-            style={{ fontSize: 14, fontWeight: 500 }}>
-            <ExitToAppIcon style={{ marginRight: 10, fontSize: 20 }} />
-            <span style={{ textTransform: "uppercase" }}>Logout</span>
-          </MenuItem>
-        </Menu>
-      </AppWrapper>
-    </ThemeProvider>
+          </MenuItem> */}
+        <MenuItem
+          onClick={signOutAndLeave}
+          className={classes.title_s_dark}
+          style={{ fontSize: 14, fontWeight: 500 }}>
+          <ExitToAppIcon style={{ marginRight: 10, fontSize: 20 }} />
+          <span style={{ textTransform: "uppercase" }}>Logout</span>
+        </MenuItem>
+      </Menu>
+    </AppWrapper>
   ) : (
-    <ThemeProvider theme={theme}>
-      <AppWrapper>
-        <CircularProgress />
-      </AppWrapper>
-    </ThemeProvider>
+    <AppWrapper>
+      <CircularProgress />
+    </AppWrapper>
   );
 };
 
