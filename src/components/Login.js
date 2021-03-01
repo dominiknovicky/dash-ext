@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { FormControl, TextField, Button } from "@material-ui/core";
 import {
   MuiPickersUtilsProvider,
@@ -16,6 +16,7 @@ import LoginTitle from "./elements/LoginTitle";
 import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth";
 import { parseUserFromLocalStorage } from "../utils";
 import firebase from "../firebase";
+import { LoadingContext } from "../contexts/LoadingContext";
 
 const uiConfig = {
   signInFlow: "popup",
@@ -27,18 +28,17 @@ const Login = ({ theme }) => {
     firstName: "",
   });
   const [dateOfBirth, setdateOfBirth] = useState(null);
-  const [isUserLoaded, setIsUserLoaded] = useState(false);
-  const [isLocalLoaded, setIsLocalLoaded] = useState(false);
+  const [isLoaded, setIsLoaded] = useContext(LoadingContext);
 
   useEffect(() => {
     const unsubscribe = firebase.auth().onAuthStateChanged((user) => {
       if (!!user) goTo(Dashboard, { user });
-      setIsUserLoaded(true);
 
       let localUser = reactLocalStorage.get("user");
       localUser = parseUserFromLocalStorage(localUser);
       if (!!localUser) goTo(DashboardOffline);
-      setIsLocalLoaded(true);
+
+      setIsLoaded(true);
     });
 
     return unsubscribe;
@@ -60,7 +60,7 @@ const Login = ({ theme }) => {
     goTo(DashboardOffline);
   };
 
-  return !isUserLoaded || !isLocalLoaded ? (
+  return !isLoaded ? (
     <CircularProgress />
   ) : (
     <form

@@ -19,6 +19,7 @@ import {
 import firebase from "../firebase";
 import AppWrapper from "./elements/AppWrapper";
 import { LoadingContext } from "../contexts/LoadingContext";
+import { useToasts } from "react-toast-notifications";
 
 const Dashboard = ({ user }) => {
   const useStyles = makeStyles(() => ({
@@ -46,14 +47,14 @@ const Dashboard = ({ user }) => {
     },
   }));
   const classes = useStyles();
+  const { addToast } = useToasts();
 
   const [dateOfBirth, setdateOfBirth] = useState(null);
   const [currentUser, setCurrentUser] = useStateWithCallbackLazy();
-  const [isLoaded, setIsLoaded] = useState(false);
   const [isSubmitted, setisSubmitted] = useState(false);
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
-  const [isLoading, setIsLoading] = useContext(LoadingContext);
+  const [isLoaded, setIsLoaded] = useContext(LoadingContext);
 
   useEffect(() => {
     const docRef = firebase.firestore().collection("users").doc(user.email);
@@ -71,7 +72,9 @@ const Dashboard = ({ user }) => {
         }
       })
       .catch((error) => {
-        console.log("Error getting document:", error);
+        addToast(error.message, {
+          appearance: "error",
+        });
         setIsLoaded(true);
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -95,7 +98,7 @@ const Dashboard = ({ user }) => {
     const user = {
       displayName: currentUser.displayName,
       email: currentUser.email,
-      dateOfBirth,
+      dateOfBirth: JSON.stringify(dateOfBirth),
     };
 
     const db = firebase.firestore();
@@ -103,11 +106,16 @@ const Dashboard = ({ user }) => {
       .doc(currentUser.email)
       .set(user)
       .then(() => {
-        console.log("Success");
+        addToast("Your account has been successfully created.", {
+          appearance: "success",
+          autoDismiss: true,
+        });
         setisSubmitted(false);
       })
       .catch((error) => {
-        console.error("Error adding document: ", error);
+        addToast(error.message, {
+          appearance: "error",
+        });
         setisSubmitted(false);
       });
   };
@@ -115,7 +123,11 @@ const Dashboard = ({ user }) => {
   return currentUser && isLoaded ? (
     <AppWrapper>
       <Typography variant="h1" gutterBottom className={classes.title_p_main}>
-        Hello <b>{currentUser && getFirstName(currentUser.displayName)}</b>.
+        Hello{" "}
+        <b>
+          {currentUser && getFirstName(currentUser.displayName.toUpperCase())}
+        </b>
+        .
       </Typography>
       {!currentUser.dateOfBirth && (
         <>
@@ -160,7 +172,7 @@ const Dashboard = ({ user }) => {
       )}
       {currentUser.dateOfBirth && (
         <Typography className={classes.title_s_dark} variant="h4">
-          {calcNextBirthday(currentUser.dateOfBirth.seconds)}
+          {calcNextBirthday(JSON.parse(currentUser.dateOfBirth))}
         </Typography>
       )}
       <Fab

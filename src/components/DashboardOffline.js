@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { calcNextBirthday } from "../utils";
 import { Typography, Fab, Menu, MenuItem, Fade } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
@@ -14,6 +14,7 @@ import { ThemeProvider } from "@material-ui/core/styles";
 import SettingsIcon from "@material-ui/icons/Settings";
 import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 import AccountCircleIcon from "@material-ui/icons/AccountCircle";
+import { LoadingContext } from "../contexts/LoadingContext";
 
 const DashboardOffline = () => {
   const useStyles = makeStyles(() => ({
@@ -31,9 +32,9 @@ const DashboardOffline = () => {
   }));
   const classes = useStyles();
   const [localUser, setLocalUser] = useStateWithCallbackLazy();
-  const [isLocalLoaded, setIsLocalLoaded] = useState(false);
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
+  const [isLoaded, setIsLoaded] = useContext(LoadingContext);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -45,9 +46,7 @@ const DashboardOffline = () => {
 
   useEffect(() => {
     const localUser = reactLocalStorage.get("user");
-    setLocalUser(parseUserFromLocalStorage(localUser), () =>
-      setIsLocalLoaded(true)
-    );
+    setLocalUser(parseUserFromLocalStorage(localUser), () => setIsLoaded(true));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -56,7 +55,7 @@ const DashboardOffline = () => {
     popToTop();
   };
 
-  return isLocalLoaded ? (
+  return isLoaded && localUser ? (
     <ThemeProvider theme={theme}>
       <AppWrapper>
         <Typography variant="h1" gutterBottom className={classes.title_p_main}>
