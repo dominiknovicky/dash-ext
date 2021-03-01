@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { calcNextBirthday } from "../utils";
 import { makeStyles } from "@material-ui/styles";
 import { getFirstName } from "../utils";
@@ -18,6 +18,7 @@ import {
 } from "@material-ui/pickers";
 import firebase from "../firebase";
 import AppWrapper from "./elements/AppWrapper";
+import { LoadingContext } from "../contexts/LoadingContext";
 
 const Dashboard = ({ user }) => {
   const useStyles = makeStyles(() => ({
@@ -52,6 +53,7 @@ const Dashboard = ({ user }) => {
   const [isSubmitted, setisSubmitted] = useState(false);
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
+  const [isLoading, setIsLoading] = useContext(LoadingContext);
 
   useEffect(() => {
     const docRef = firebase.firestore().collection("users").doc(user.email);
