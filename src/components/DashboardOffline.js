@@ -26,8 +26,8 @@ const DashboardOffline = () => {
     },
     fab: {
       position: "absolute",
-      bottom: theme.spacing(3),
-      right: theme.spacing(3),
+      left: theme.spacing(2),
+      bottom: theme.spacing(2),
     },
   }));
   const classes = useStyles();
@@ -70,6 +70,7 @@ const DashboardOffline = () => {
           aria-label="add"
           aria-controls="fade-menu"
           aria-haspopup="true"
+          size="medium"
           onClick={handleClick}>
           <SettingsIcon />
         </Fab>

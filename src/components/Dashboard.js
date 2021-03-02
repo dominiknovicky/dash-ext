@@ -20,6 +20,7 @@ import firebase from "../firebase";
 import AppWrapper from "./elements/AppWrapper";
 import { LoadingContext } from "../contexts/LoadingContext";
 import { useToasts } from "react-toast-notifications";
+import Settings from "./Settings";
 
 const Dashboard = ({ user }) => {
   const useStyles = makeStyles(() => ({
@@ -31,8 +32,8 @@ const Dashboard = ({ user }) => {
     },
     fab: {
       position: "absolute",
-      bottom: theme.spacing(3),
-      right: theme.spacing(3),
+      left: theme.spacing(2),
+      bottom: theme.spacing(2),
     },
     inputWrapper: {
       display: "flex",
@@ -180,6 +181,7 @@ const Dashboard = ({ user }) => {
         color="secondary"
         aria-controls="fade-menu"
         aria-haspopup="true"
+        size="medium"
         onClick={handleClick}>
         <SettingsIcon />
       </Fab>
@@ -205,6 +207,7 @@ const Dashboard = ({ user }) => {
           <span style={{ textTransform: "uppercase" }}>Logout</span>
         </MenuItem>
       </Menu>
+      {/* <Settings /> */}
     </AppWrapper>
   ) : (
     <AppWrapper>
