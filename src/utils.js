@@ -1,8 +1,8 @@
 import moment from "moment";
 
 // DASHBOARD
-export const calcNextBirthday = (userLocalStorage) => {
-  const birthdate = moment(userLocalStorage.dateOfBirth).format("YYYY-MM-DD");
+export const calcNextBirthday = (dateOfBirth) => {
+  const birthdate = moment(dateOfBirth).format("YYYY-MM-DD");
   const today = moment().format("YYYY-MM-DD");
   const years = moment().diff(birthdate, "years");
   const adjustToday = birthdate.substring(5) === today.substring(5) ? 0 : 1;
@@ -18,18 +18,13 @@ export const calcNextBirthday = (userLocalStorage) => {
   }
 };
 
-// APP
-export const isUserEmpty = (user) => {
-  return Object.values(user).filter((value) => value !== "").length === 0;
+export const getFirstName = (displayName) => {
+  return displayName.split(" ")[0];
 };
 
-export const doesUserExist = (user) => {
-  return user === undefined
-    ? {
-        name: "",
-        dateOfBirth: "",
-      }
-    : JSON.parse(user);
+// APP
+export const parseUserFromLocalStorage = (user) => {
+  return user === undefined ? null : JSON.parse(user);
 };
 
 // GLOBAL

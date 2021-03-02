@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 export const AppWrapper = styled.div`
-  background: ${({ color }) => color.default};
+  background: #fafafa;
   width: 100%;
   height: 100vh;
   min-height: 100%;
@@ -10,4 +10,5 @@ export const AppWrapper = styled.div`
   justify-content: center;
   align-items: center;
   flex-direction: column;
+  position: relative;
 `;
