@@ -1,19 +1,68 @@
-import React from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { FormControl, TextField, Button } from "@material-ui/core";
 import {
   MuiPickersUtilsProvider,
   KeyboardDatePicker,
 } from "@material-ui/pickers";
 import DateFnsUtils from "@date-io/date-fns";
+import { reactLocalStorage } from "reactjs-localstorage";
+import { withTheme } from "@material-ui/styles";
+import { goTo } from "react-chrome-extension-router";
+import { CircularProgress } from "@material-ui/core";
+import Dashboard from "./Dashboard";
+import DashboardOffline from "./DashboardOffline";
+import Divider from "./elements/Divider";
+import LoginTitle from "./elements/LoginTitle";
+import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth";
+import { parseUserFromLocalStorage } from "../utils";
+import firebase from "../firebase";
+import { LoadingContext } from "../contexts/LoadingContext";
 
-const Login = ({
-  handleSubmit,
-  values,
-  handleChange,
-  dateOfBirth,
-  setdateOfBirth,
-}) => {
-  return (
+const uiConfig = {
+  signInFlow: "popup",
+  signInOptions: [firebase.auth.GoogleAuthProvider.PROVIDER_ID],
+};
+
+const Login = ({ theme }) => {
+  const [values, setValues] = useState({
+    firstName: "",
+  });
+  const [dateOfBirth, setdateOfBirth] = useState(null);
+  const [isLoaded, setIsLoaded] = useContext(LoadingContext);
+
+  useEffect(() => {
+    const unsubscribe = firebase.auth().onAuthStateChanged((user) => {
+      if (!!user) goTo(Dashboard, { user });
+
+      let localUser = reactLocalStorage.get("user");
+      localUser = parseUserFromLocalStorage(localUser);
+      if (!!localUser) goTo(DashboardOffline);
+
+      setIsLoaded(true);
+    });
+
+    return unsubscribe;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleChange = (prop) => (event) => {
+    setValues({ ...values, [prop]: event.target.value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    const localUser = {
+      name: values.firstName,
+      dateOfBirth: dateOfBirth,
+    };
+    reactLocalStorage.set("user", JSON.stringify(localUser));
+    goTo(DashboardOffline);
+  };
+
+  return !isLoaded ? (
+    <CircularProgress />
+  ) : (
     <form
       onSubmit={handleSubmit}
       style={{
@@ -21,18 +70,16 @@ const Login = ({
         display: "flex",
         maxWidth: "300px",
         width: "100%",
-        padding: "30px 40px",
-        backgroundColor: "rgba(255,255,255,0.5)",
-        boxShadow: "0 0 10px 0 #bfbfbf",
-        borderRadius: 5,
       }}>
+      <LoginTitle />
+
       <FormControl>
         <TextField
           required
           margin="normal"
           id="firstName"
           label="First Name"
-          variant="filled"
+          variant="outlined"
           value={values.firstName}
           onChange={handleChange("firstName")}
           type="text"
@@ -44,7 +91,7 @@ const Login = ({
           required
           margin="normal"
           disableFuture
-          inputVariant="filled"
+          inputVariant="outlined"
           id="dateOfBirth"
           label="Date of Birth"
           format="dd/MM/yyyy"
@@ -65,8 +112,12 @@ const Login = ({
           Submit
         </Button>
       </FormControl>
+
+      <Divider text="or" color={theme.palette.secondary} />
+
+      <StyledFirebaseAuth uiConfig={uiConfig} firebaseAuth={firebase.auth()} />
     </form>
   );
 };
 
-export default Login;
+export default withTheme(Login);
