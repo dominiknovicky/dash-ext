@@ -2,7 +2,6 @@ import React, { useEffect, useState, useContext } from "react";
 import { calcNextBirthday } from "../utils";
 import { makeStyles } from "@material-ui/styles";
 import { getFirstName } from "../utils";
-import { popToTop } from "react-chrome-extension-router";
 import { useStateWithCallbackLazy } from "use-state-with-callback";
 import { CircularProgress } from "@material-ui/core";
 import theme from "../theme";
@@ -53,8 +52,6 @@ const Dashboard = ({ user }) => {
   const [dateOfBirth, setdateOfBirth] = useState(null);
   const [currentUser, setCurrentUser] = useStateWithCallbackLazy();
   const [isSubmitted, setisSubmitted] = useState(false);
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const open = Boolean(anchorEl);
   const [isLoaded, setIsLoaded] = useContext(LoadingContext);
 
   useEffect(() => {
@@ -80,19 +77,6 @@ const Dashboard = ({ user }) => {
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSubmitted]);
-
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  const signOutAndLeave = () => {
-    firebase.auth().signOut();
-    popToTop();
-  };
 
   const createUserInFirebase = () => {
     setisSubmitted(true);
@@ -176,37 +160,6 @@ const Dashboard = ({ user }) => {
           {calcNextBirthday(JSON.parse(currentUser.dateOfBirth))}
         </Typography>
       )}
-      {/* <Fab
-        className={classes.fab}
-        color="secondary"
-        aria-controls="fade-menu"
-        aria-haspopup="true"
-        size="medium"
-        onClick={handleClick}>
-        <SettingsIcon />
-      </Fab> */}
-      <Menu
-        id="fade-menu"
-        anchorEl={anchorEl}
-        keepMounted
-        open={open}
-        onClose={handleClose}
-        TransitionComponent={Fade}>
-        {/* <MenuItem
-            className={classes.title_s_dark}
-            // onClick={signOutAndLeave}
-            style={{ fontSize: 14, fontWeight: 500 }}>
-            <AccountCircleIcon style={{ marginRight: 10, fontSize: 20 }} />
-            <span style={{ textTransform: "uppercase" }}>Profile</span>
-          </MenuItem> */}
-        <MenuItem
-          onClick={signOutAndLeave}
-          className={classes.title_s_dark}
-          style={{ fontSize: 14, fontWeight: 500 }}>
-          <ExitToAppIcon style={{ marginRight: 10, fontSize: 20 }} />
-          <span style={{ textTransform: "uppercase" }}>Logout</span>
-        </MenuItem>
-      </Menu>
       <Settings />
     </AppWrapper>
   ) : (

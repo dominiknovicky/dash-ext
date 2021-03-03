@@ -22,3 +22,9 @@ code {
   justify-content: center !important;
   align-items: center !important;
 }
+
+.MuiButtonBase-root.MuiTab-root.MuiTab-textColorInherit.Mui-selected {
+}
+.MuiList-root.MuiMenu-list.MuiList-padding {
+  padding: 0 !important;
+}
