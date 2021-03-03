@@ -176,7 +176,7 @@ const Dashboard = ({ user }) => {
           {calcNextBirthday(JSON.parse(currentUser.dateOfBirth))}
         </Typography>
       )}
-      <Fab
+      {/* <Fab
         className={classes.fab}
         color="secondary"
         aria-controls="fade-menu"
@@ -184,7 +184,7 @@ const Dashboard = ({ user }) => {
         size="medium"
         onClick={handleClick}>
         <SettingsIcon />
-      </Fab>
+      </Fab> */}
       <Menu
         id="fade-menu"
         anchorEl={anchorEl}
@@ -207,7 +207,7 @@ const Dashboard = ({ user }) => {
           <span style={{ textTransform: "uppercase" }}>Logout</span>
         </MenuItem>
       </Menu>
-      {/* <Settings /> */}
+      <Settings />
     </AppWrapper>
   ) : (
     <AppWrapper>
