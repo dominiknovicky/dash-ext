@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useState } from "react";
 import { FormControl, TextField, Button } from "@material-ui/core";
 import {
   MuiPickersUtilsProvider,
@@ -8,37 +8,20 @@ import DateFnsUtils from "@date-io/date-fns";
 import { reactLocalStorage } from "reactjs-localstorage";
 import { withTheme } from "@material-ui/styles";
 import { goTo } from "react-chrome-extension-router";
-import { CircularProgress } from "@material-ui/core";
-import Dashboard from "./Dashboard";
 import DashboardOffline from "./DashboardOffline";
 import Divider from "./elements/Divider";
 import LoginTitle from "./elements/LoginTitle";
-import { parseUserFromLocalStorage } from "../utils";
 import { auth, provider } from "../firebase";
-import { LoadingContext } from "../contexts/LoadingContext";
 import GoogleLoginButton from "./elements/GoogleLoginButton";
+import styled from "styled-components";
+import { useToasts } from "react-toast-notifications";
 
 const Login = ({ theme }) => {
   const [values, setValues] = useState({
     firstName: "",
   });
   const [dateOfBirth, setdateOfBirth] = useState(null);
-  const [isLoaded, setIsLoaded] = useContext(LoadingContext);
-
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (!!user) goTo(Dashboard, { user });
-
-      let localUser = reactLocalStorage.get("user");
-      localUser = parseUserFromLocalStorage(localUser);
-      if (!!localUser) goTo(DashboardOffline);
-
-      setIsLoaded(true);
-    });
-
-    return unsubscribe;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const { addToast } = useToasts();
 
   const handleChange = (prop) => (event) => {
     setValues({ ...values, [prop]: event.target.value });
@@ -57,20 +40,15 @@ const Login = ({ theme }) => {
 
   const signIn = (e) => {
     e.preventDefault();
-    auth.signInWithPopup(provider).catch((error) => alert(error.message));
+    auth.signInWithPopup(provider).catch((error) =>
+      addToast(error.message, {
+        appearance: "error",
+      })
+    );
   };
 
-  return !isLoaded ? (
-    <CircularProgress />
-  ) : (
-    <form
-      onSubmit={handleSubmit}
-      style={{
-        flexDirection: "column",
-        display: "flex",
-        maxWidth: "300px",
-        width: "100%",
-      }}>
+  return (
+    <FormContainer onSubmit={handleSubmit}>
       <LoginTitle />
 
       <FormControl>
@@ -116,8 +94,15 @@ const Login = ({ theme }) => {
       <Divider text="or" color={theme.palette.secondary} />
 
       <GoogleLoginButton onClick={signIn} />
-    </form>
+    </FormContainer>
   );
 };
 
 export default withTheme(Login);
+
+const FormContainer = styled.form`
+  flex-direction: column;
+  display: flex;
+  max-width: 300px;
+  width: 100%;
+`;

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import "./index.css";
 import { Router } from "react-chrome-extension-router";
 import Login from "./components/Login";
@@ -11,13 +11,18 @@ import { reactLocalStorage } from "reactjs-localstorage";
 import { parseUserFromLocalStorage } from "./utils";
 import Dashboard from "./components/Dashboard";
 import DashboardOffline from "./components/DashboardOffline";
+import { CircularProgress } from "@material-ui/core";
 
 const App = () => {
   const [user, loading] = useAuthState(auth);
   let localUser = parseUserFromLocalStorage(reactLocalStorage.get("user"));
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <AppWrapper>
+        <CircularProgress />
+      </AppWrapper>
+    );
   }
 
   return (
