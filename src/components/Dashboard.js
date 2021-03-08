@@ -5,10 +5,7 @@ import { getFirstName } from "../utils";
 import { useStateWithCallbackLazy } from "use-state-with-callback";
 import { CircularProgress } from "@material-ui/core";
 import theme from "../theme";
-import { Typography, Fab, Menu, MenuItem, Fade } from "@material-ui/core";
-import SettingsIcon from "@material-ui/icons/Settings";
-import ExitToAppIcon from "@material-ui/icons/ExitToApp";
-import AccountCircleIcon from "@material-ui/icons/AccountCircle";
+import { Typography, Fab } from "@material-ui/core";
 import ChevronRightRoundedIcon from "@material-ui/icons/ChevronRightRounded";
 import DateFnsUtils from "@date-io/date-fns";
 import {

@@ -27,7 +27,9 @@ code {
   align-items: center !important;
 }
 
-.MuiButtonBase-root.MuiTab-root.MuiTab-textColorInherit.Mui-selected {
+.MuiTab-wrapper {
+  align-items: baseline !important;
+  padding: 0 10px;
 }
 .MuiList-root.MuiMenu-list.MuiList-padding {
   padding: 0 !important;

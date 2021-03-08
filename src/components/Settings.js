@@ -11,8 +11,11 @@ import {
   Button,
 } from "@material-ui/core";
 import SettingsIcon from "@material-ui/icons/Settings";
+import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 import { popToTop } from "react-chrome-extension-router";
 import { auth } from "../firebase";
+import { SettingsWrapper } from "../styles/BasicStyles";
+import theme from "../theme";
 
 const TabPanel = ({ children, value, index, ...other }) => {
   return (
@@ -39,33 +42,23 @@ function a11yProps(index) {
 }
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    flexGrow: 1,
-    backgroundColor: theme.palette.background.paper,
-    display: "flex",
-    outline: "none",
-    width: 500,
-  },
   menu: {
     padding: "0 !important",
   },
   tabs: {
     borderRight: `1px solid ${theme.palette.divider}`,
-    paddingTop: 20,
-    paddingBottom: 20,
+    paddingTop: 10,
+  },
+  logoutButton: {
+    padding: 20,
   },
   tabPanel: {},
   fab: {
     position: "absolute",
-    left: theme.spacing(2),
-    bottom: theme.spacing(2),
+    left: 20,
+    bottom: 20,
   },
 }));
-
-const signOutAndLeave = () => {
-  auth.signOut();
-  popToTop();
-};
 
 const VerticalTabs = () => {
   const classes = useStyles();
@@ -83,6 +76,11 @@ const VerticalTabs = () => {
 
   const handleClose = () => {
     setAnchorEl(null);
+  };
+
+  const signOutAndLeave = () => {
+    auth.signOut();
+    popToTop();
   };
 
   return (
@@ -104,7 +102,7 @@ const VerticalTabs = () => {
         onClose={handleClose}
         className={classes.menu}
         TransitionComponent={Fade}>
-        <div className={classes.root}>
+        <SettingsWrapper theme={theme}>
           <Tabs
             textColor="primary"
             indicatorColor="primary"
@@ -112,12 +110,17 @@ const VerticalTabs = () => {
             variant="scrollable"
             value={value}
             onChange={handleChange}
-            aria-label="Vertical tabs example"
             className={classes.tabs}>
-            <Tab label="Item One" {...a11yProps(0)} />
+            <Tab label="Profile" {...a11yProps(0)} />
             <Tab label="Item Two" {...a11yProps(1)} />
             <Tab label="Item Three" {...a11yProps(2)} />
-            <Button onClick={signOutAndLeave}>Logout</Button>
+            <Button
+              className={classes.logoutButton}
+              startIcon={<ExitToAppIcon />}
+              color="primary"
+              onClick={signOutAndLeave}>
+              Logout
+            </Button>
           </Tabs>
           <TabPanel className={classes.tabPanel} value={value} index={0}>
             Item One
@@ -128,7 +131,7 @@ const VerticalTabs = () => {
           <TabPanel value={value} index={2}>
             Item Three
           </TabPanel>
-        </div>
+        </SettingsWrapper>
       </Menu>
     </>
   );
