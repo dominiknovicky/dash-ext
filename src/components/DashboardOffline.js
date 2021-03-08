@@ -53,6 +53,7 @@ const DashboardOffline = () => {
   const logoutAndLeave = () => {
     reactLocalStorage.remove("user");
     popToTop();
+    // fix this
   };
 
   return isLoaded && localUser ? (

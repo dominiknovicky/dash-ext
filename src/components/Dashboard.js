@@ -15,13 +15,17 @@ import {
   MuiPickersUtilsProvider,
   KeyboardDatePicker,
 } from "@material-ui/pickers";
-import firebase from "../firebase";
+import { db } from "../firebase";
 import AppWrapper from "./elements/AppWrapper";
 import { LoadingContext } from "../contexts/LoadingContext";
 import { useToasts } from "react-toast-notifications";
 import Settings from "./Settings";
+import { auth } from "../firebase";
+import { useAuthState } from "react-firebase-hooks/auth";
 
-const Dashboard = ({ user }) => {
+const Dashboard = () => {
+  const [user, loading] = useAuthState(auth);
+
   const useStyles = makeStyles(() => ({
     title_p_main: {
       color: theme.palette.primary.main,
@@ -55,7 +59,7 @@ const Dashboard = ({ user }) => {
   const [isLoaded, setIsLoaded] = useContext(LoadingContext);
 
   useEffect(() => {
-    const docRef = firebase.firestore().collection("users").doc(user.email);
+    const docRef = db.collection("users").doc(user.email);
     docRef
       .get()
       .then((doc) => {
@@ -86,7 +90,6 @@ const Dashboard = ({ user }) => {
       dateOfBirth: JSON.stringify(dateOfBirth),
     };
 
-    const db = firebase.firestore();
     db.collection("users")
       .doc(currentUser.email)
       .set(user)

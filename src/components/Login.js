@@ -13,15 +13,10 @@ import Dashboard from "./Dashboard";
 import DashboardOffline from "./DashboardOffline";
 import Divider from "./elements/Divider";
 import LoginTitle from "./elements/LoginTitle";
-import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth";
 import { parseUserFromLocalStorage } from "../utils";
-import firebase from "../firebase";
+import { auth, provider } from "../firebase";
 import { LoadingContext } from "../contexts/LoadingContext";
-
-const uiConfig = {
-  signInFlow: "popup",
-  signInOptions: [firebase.auth.GoogleAuthProvider.PROVIDER_ID],
-};
+import GoogleLoginButton from "./elements/GoogleLoginButton";
 
 const Login = ({ theme }) => {
   const [values, setValues] = useState({
@@ -31,7 +26,7 @@ const Login = ({ theme }) => {
   const [isLoaded, setIsLoaded] = useContext(LoadingContext);
 
   useEffect(() => {
-    const unsubscribe = firebase.auth().onAuthStateChanged((user) => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
       if (!!user) goTo(Dashboard, { user });
 
       let localUser = reactLocalStorage.get("user");
@@ -58,6 +53,11 @@ const Login = ({ theme }) => {
     };
     reactLocalStorage.set("user", JSON.stringify(localUser));
     goTo(DashboardOffline);
+  };
+
+  const signIn = (e) => {
+    e.preventDefault();
+    auth.signInWithPopup(provider).catch((error) => alert(error.message));
   };
 
   return !isLoaded ? (
@@ -115,7 +115,7 @@ const Login = ({ theme }) => {
 
       <Divider text="or" color={theme.palette.secondary} />
 
-      <StyledFirebaseAuth uiConfig={uiConfig} firebaseAuth={firebase.auth()} />
+      <GoogleLoginButton onClick={signIn} />
     </form>
   );
 };

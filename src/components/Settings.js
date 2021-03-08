@@ -12,7 +12,7 @@ import {
 } from "@material-ui/core";
 import SettingsIcon from "@material-ui/icons/Settings";
 import { popToTop } from "react-chrome-extension-router";
-import firebase from "../firebase";
+import { auth } from "../firebase";
 
 const TabPanel = ({ children, value, index, ...other }) => {
   return (
@@ -63,7 +63,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const signOutAndLeave = () => {
-  firebase.auth().signOut();
+  auth.signOut();
   popToTop();
 };
 
