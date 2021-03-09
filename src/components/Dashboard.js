@@ -61,14 +61,11 @@ const Dashboard = () => {
       .get()
       .then((doc) => {
         if (doc.exists) {
-          setCurrentUser(doc.data(), () => {
-            setIsLoaded(true);
-          });
+          setCurrentUser(doc.data());
         } else {
-          setCurrentUser(user, () => {
-            setIsLoaded(true);
-          });
+          setCurrentUser(user);
         }
+        setIsLoaded(true);
       })
       .catch((error) => {
         addToast(error.message, {
@@ -107,12 +104,8 @@ const Dashboard = () => {
 
   return currentUser && isLoaded ? (
     <AppWrapper>
-      <Typography variant="h1" gutterBottom className={classes.title_p_main}>
-        Hello{" "}
-        <b>
-          {currentUser && getFirstName(currentUser.displayName.toUpperCase())}
-        </b>
-        .
+      <Typography variant="h1" gutterBottom color="primary">
+        Hello <b>{getFirstName(currentUser?.displayName.toUpperCase())}</b>.
       </Typography>
       {!currentUser.dateOfBirth && (
         <>
