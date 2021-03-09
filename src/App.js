@@ -29,11 +29,9 @@ const App = () => {
     <ToastProvider autoDismissTimeout="3000">
       <LoadingProvider>
         <Router>
-          <AppWrapper>
-            {!user && !localUser && <Login />}
-            {!!user && <Dashboard />}
-            {!!localUser && <DashboardOffline />}
-          </AppWrapper>
+          {!user && !localUser && <Login />}
+          {!!user && <Dashboard />}
+          {!!localUser && <DashboardOffline />}
         </Router>
       </LoadingProvider>
     </ToastProvider>

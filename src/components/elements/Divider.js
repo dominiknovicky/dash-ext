@@ -1,5 +1,18 @@
 import React from "react";
 import styled from "styled-components";
+import theme from "../../theme";
+
+const Divider = ({ text }) => {
+  return (
+    <DividerWrapper>
+      <HorizontalLine />
+      <Text theme={theme}>{text}</Text>
+      <HorizontalLine />
+    </DividerWrapper>
+  );
+};
+
+export default Divider;
 
 const DividerWrapper = styled.div`
   display: flex;
@@ -20,18 +33,6 @@ const HorizontalLine = styled.hr`
 const Text = styled.span`
   padding: 0 10px;
   height: 100%;
-  color: ${({ color }) => color.main};
+  color: ${({ theme }) => theme.palette.secondary.main};
   font-weight: 500;
 `;
-
-const Divider = ({ text, color }) => {
-  return (
-    <DividerWrapper>
-      <HorizontalLine />
-      <Text color={color}>{text}</Text>
-      <HorizontalLine />
-    </DividerWrapper>
-  );
-};
-
-export default Divider;

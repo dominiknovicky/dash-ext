@@ -6,7 +6,6 @@ import {
 } from "@material-ui/pickers";
 import DateFnsUtils from "@date-io/date-fns";
 import { reactLocalStorage } from "reactjs-localstorage";
-import { withTheme } from "@material-ui/styles";
 import { goTo } from "react-chrome-extension-router";
 import DashboardOffline from "./DashboardOffline";
 import Divider from "./elements/Divider";
@@ -15,8 +14,10 @@ import { auth, provider } from "../firebase";
 import GoogleLoginButton from "./elements/GoogleLoginButton";
 import styled from "styled-components";
 import { useToasts } from "react-toast-notifications";
+import AppWrapper from "./elements/AppWrapper";
+import Dashboard from "./Dashboard";
 
-const Login = ({ theme }) => {
+const Login = () => {
   const [values, setValues] = useState({
     firstName: "",
   });
@@ -40,65 +41,70 @@ const Login = ({ theme }) => {
 
   const signIn = (e) => {
     e.preventDefault();
-    auth.signInWithPopup(provider).catch((error) =>
-      addToast(error.message, {
-        appearance: "error",
-      })
-    );
+    auth
+      .signInWithPopup(provider)
+      .then(() => goTo(Dashboard))
+      .catch((error) =>
+        addToast(error.message, {
+          appearance: "error",
+        })
+      );
   };
 
   return (
-    <FormContainer onSubmit={handleSubmit}>
-      <LoginTitle />
+    <AppWrapper>
+      <FormContainer onSubmit={handleSubmit}>
+        <LoginTitle />
 
-      <FormControl>
-        <TextField
-          required
-          margin="normal"
-          id="firstName"
-          label="First Name"
-          variant="outlined"
-          value={values.firstName}
-          onChange={handleChange("firstName")}
-          type="text"
-        />
-      </FormControl>
+        <FormControl>
+          <TextField
+            required
+            margin="normal"
+            id="firstName"
+            label="First Name"
+            variant="outlined"
+            value={values.firstName}
+            onChange={handleChange("firstName")}
+            type="text"
+          />
+        </FormControl>
 
-      <MuiPickersUtilsProvider utils={DateFnsUtils}>
-        <KeyboardDatePicker
-          required
-          margin="normal"
-          disableFuture
-          inputVariant="outlined"
-          id="dateOfBirth"
-          label="Date of Birth"
-          format="dd/MM/yyyy"
-          value={dateOfBirth}
-          onChange={setdateOfBirth}
-          KeyboardButtonProps={{
-            "aria-label": "change date",
-          }}
-        />
-      </MuiPickersUtilsProvider>
+        <MuiPickersUtilsProvider utils={DateFnsUtils}>
+          <KeyboardDatePicker
+            required
+            margin="normal"
+            disableFuture
+            inputVariant="outlined"
+            id="dateOfBirth"
+            label="Date of Birth"
+            format="dd/MM/yyyy"
+            value={dateOfBirth}
+            onChange={setdateOfBirth}
+            KeyboardButtonProps={{
+              "aria-label": "change date",
+            }}
+          />
+        </MuiPickersUtilsProvider>
 
-      <FormControl margin="normal">
-        <Button
-          disabled={!(values.firstName !== "" && dateOfBirth !== null)}
-          variant="contained"
-          color="primary"
-          type="submit">
-          Submit
-        </Button>
-      </FormControl>
+        <FormControl margin="normal">
+          <Button
+            disabled={!(values.firstName !== "" && dateOfBirth !== null)}
+            variant="contained"
+            color="primary"
+            type="submit">
+            Submit
+          </Button>
+        </FormControl>
 
-      <Divider text="or" color={theme.palette.secondary} />
+        <Divider text="or" />
 
-      <GoogleLoginButton onClick={signIn} />
-    </FormContainer>
+        <GoogleLoginButton onClick={signIn} />
+      </FormContainer>
+    </AppWrapper>
   );
 };
 
-export default withTheme(Login);
+export default Login;
 
 const FormContainer = styled.form`
   flex-direction: column;
