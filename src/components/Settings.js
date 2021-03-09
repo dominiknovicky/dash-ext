@@ -12,10 +12,11 @@ import {
 } from "@material-ui/core";
 import SettingsIcon from "@material-ui/icons/Settings";
 import ExitToAppIcon from "@material-ui/icons/ExitToApp";
-import { popToTop } from "react-chrome-extension-router";
+import { goTo } from "react-chrome-extension-router";
 import { auth } from "../firebase";
 import { SettingsWrapper } from "../styles/BasicStyles";
 import theme from "../theme";
+import Login from "./Login";
 
 const TabPanel = ({ children, value, index, ...other }) => {
   return (
@@ -80,7 +81,7 @@ const VerticalTabs = () => {
 
   const signOutAndLeave = () => {
     auth.signOut();
-    popToTop();
+    goTo(Login);
   };
 
   return (

@@ -34,3 +34,12 @@ code {
 .MuiList-root.MuiMenu-list.MuiList-padding {
   padding: 0 !important;
 }
+
+.trans-component-appear {
+  opacity: 0.01;
+}
+
+.trans-component-appear.trans-component-appear-active {
+  opacity: 1;
+  transition: opacity 0.3s ease-in-out;
+}

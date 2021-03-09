@@ -1,8 +1,7 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState } from "react";
 import { calcNextBirthday } from "../utils";
 import { makeStyles } from "@material-ui/styles";
 import { getFirstName } from "../utils";
-import { useStateWithCallbackLazy } from "use-state-with-callback";
 import { CircularProgress } from "@material-ui/core";
 import theme from "../theme";
 import { Typography, Fab } from "@material-ui/core";
@@ -12,21 +11,19 @@ import {
   MuiPickersUtilsProvider,
   KeyboardDatePicker,
 } from "@material-ui/pickers";
-import { db } from "../firebase";
 import AppWrapper from "./elements/AppWrapper";
-import { LoadingContext } from "../contexts/LoadingContext";
-import { useToasts } from "react-toast-notifications";
 import Settings from "./Settings";
+import { db } from "../firebase";
 import { auth } from "../firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
+import { useToasts } from "react-toast-notifications";
+import styled from "styled-components";
+import { TransverseLoading } from "react-loadingg";
 
 const Dashboard = () => {
-  const [user, loading] = useAuthState(auth);
+  const [user] = useAuthState(auth);
 
   const useStyles = makeStyles(() => ({
-    title_p_main: {
-      color: theme.palette.primary.main,
-    },
     title_s_dark: {
       color: theme.palette.secondary.dark,
     },
@@ -35,25 +32,15 @@ const Dashboard = () => {
       left: theme.spacing(2),
       bottom: theme.spacing(2),
     },
-    inputWrapper: {
-      display: "flex",
-      alignItems: "center",
-      marginTop: 10,
-    },
-    sendIcon: {
-      fontSize: 30,
-    },
-    fabSend: {
-      marginLeft: 20,
-    },
   }));
+
   const classes = useStyles();
   const { addToast } = useToasts();
 
   const [dateOfBirth, setdateOfBirth] = useState(null);
-  const [currentUser, setCurrentUser] = useStateWithCallbackLazy();
+  const [currentUser, setCurrentUser] = useState();
   const [isSubmitted, setisSubmitted] = useState(false);
-  const [isLoaded, setIsLoaded] = useContext(LoadingContext);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
     const docRef = db.collection("users").doc(user.email);
@@ -62,8 +49,10 @@ const Dashboard = () => {
       .then((doc) => {
         if (doc.exists) {
           setCurrentUser(doc.data());
+          console.log(!!JSON.parse(doc.data().dateOfBirth));
         } else {
           setCurrentUser(user);
+          console.log(!JSON.parse(currentUser.dateOfBirth));
         }
         setIsLoaded(true);
       })
@@ -102,64 +91,73 @@ const Dashboard = () => {
       });
   };
 
-  return currentUser && isLoaded ? (
-    <AppWrapper>
-      <Typography variant="h1" gutterBottom color="primary">
-        Hello <b>{getFirstName(currentUser?.displayName.toUpperCase())}</b>.
-      </Typography>
-      {!currentUser.dateOfBirth && (
-        <>
-          <Typography className={classes.title_s_dark} variant="h6">
-            Please, enter your birth date to continue.
-          </Typography>
-          <div className={classes.inputWrapper}>
-            <MuiPickersUtilsProvider utils={DateFnsUtils}>
-              <KeyboardDatePicker
-                disabled={isSubmitted}
-                required
-                disableFuture
-                inputVariant="outlined"
-                id="dateOfBirth"
-                label="Date of Birth"
-                format="dd/MM/yyyy"
-                value={dateOfBirth}
-                onChange={setdateOfBirth}
-                KeyboardButtonProps={{
-                  "aria-label": "change date",
-                }}
-              />
-            </MuiPickersUtilsProvider>
-            {!isSubmitted && (
-              <Fab
-                disabled={dateOfBirth ? false : true}
-                component="button"
-                size="medium"
-                className={classes.fabSend}
-                color="primary"
-                aria-label="chevron-right"
-                aria-haspopup="false"
-                onClick={createUserInFirebase}>
-                <ChevronRightRoundedIcon className={classes.sendIcon} />
-              </Fab>
-            )}
-            {isSubmitted && (
-              <CircularProgress size={48} className={classes.fabSend} />
-            )}
-          </div>
-        </>
-      )}
-      {currentUser.dateOfBirth && (
-        <Typography className={classes.title_s_dark} variant="h4">
-          {calcNextBirthday(JSON.parse(currentUser.dateOfBirth))}
+  return (
+    isLoaded && (
+      <AppWrapper>
+        <Typography variant="h1" gutterBottom color="primary">
+          Hello{" "}
+          <b>
+            {currentUser &&
+              getFirstName(currentUser?.displayName.toUpperCase())}
+          </b>
+          .
         </Typography>
-      )}
-      <Settings />
-    </AppWrapper>
-  ) : (
-    <AppWrapper>
-      <CircularProgress />
-    </AppWrapper>
+        {/* {!JSON.parse(currentUser.dateOfBirth) && (
+          <>
+            <Typography className={classes.title_s_dark} variant="h6">
+              Please, enter your birth date to continue.
+            </Typography>
+            <InputContainer>
+              <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                <KeyboardDatePicker
+                  disabled={isSubmitted}
+                  required
+                  disableFuture
+                  inputVariant="outlined"
+                  id="dateOfBirth"
+                  label="Date of Birth"
+                  format="dd/MM/yyyy"
+                  value={dateOfBirth}
+                  onChange={setdateOfBirth}
+                  KeyboardButtonProps={{
+                    "aria-label": "change date",
+                  }}
+                />
+              </MuiPickersUtilsProvider>
+              {!isSubmitted && (
+                <Fab
+                  disabled={dateOfBirth ? false : true}
+                  component="button"
+                  size="medium"
+                  style={{ marginLeft: 20 }}
+                  color="primary"
+                  aria-label="chevron-right"
+                  aria-haspopup="false"
+                  onClick={createUserInFirebase}>
+                  <ChevronRightRoundedIcon style={{ fontSize: 30 }} />
+                </Fab>
+              )}
+              {isSubmitted && (
+                <CircularProgress size={48} style={{ marginLeft: 20 }} />
+              )}
+            </InputContainer>
+          </> 
+        )}*/}
+        {/* {JSON.parse(currentUser.dateOfBirth) && (
+          <Typography className={classes.title_s_dark} variant="h4">
+            {calcNextBirthday(JSON.parse(currentUser.dateOfBirth))}
+          </Typography>
+        )} */}
+        <Settings />
+      </AppWrapper>
+    )
   );
 };
 
 export default Dashboard;
+
+const InputContainer = styled.div`
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+`;

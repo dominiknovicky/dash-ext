@@ -97,8 +97,7 @@ const Login = () => {
         </FormControl>
 
         <Divider text="or" />
-
-        <GoogleLoginButton onClick={signIn} />
+        <GoogleLoginButton onClick={signIn} key="example" id="example" />
       </FormContainer>
     </AppWrapper>
   );
