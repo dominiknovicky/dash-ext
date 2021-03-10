@@ -12,6 +12,7 @@ import {
   KeyboardDatePicker,
 } from "@material-ui/pickers";
 import AppWrapper from "./elements/AppWrapper";
+import { AppWrapper as Wrapper } from "../styles/BasicStyles";
 import Settings from "./Settings";
 import { db } from "../firebase";
 import { auth } from "../firebase";
@@ -38,30 +39,31 @@ const Dashboard = () => {
   const { addToast } = useToasts();
 
   const [dateOfBirth, setdateOfBirth] = useState(null);
-  const [currentUser, setCurrentUser] = useState();
+  const [currentUser, setCurrentUser] = useState(null);
   const [isSubmitted, setisSubmitted] = useState(false);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log("test");
     const docRef = db.collection("users").doc(user.email);
     docRef
       .get()
       .then((doc) => {
         if (doc.exists) {
           setCurrentUser(doc.data());
-          console.log(!!JSON.parse(doc.data().dateOfBirth));
+          console.log(doc.data().hasOwnProperty("dateOfBirth"));
         } else {
           setCurrentUser(user);
-          console.log(!JSON.parse(currentUser.dateOfBirth));
         }
-        setIsLoaded(true);
+        setLoading(false);
       })
       .catch((error) => {
         addToast(error.message, {
           appearance: "error",
         });
-        setIsLoaded(true);
+        setLoading(false);
       });
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSubmitted]);
 
@@ -91,66 +93,72 @@ const Dashboard = () => {
       });
   };
 
+  if (loading && !currentUser) {
+    return (
+      <Wrapper>
+        <TransverseLoading color={theme.palette.primary.main} />
+      </Wrapper>
+    );
+  }
+
   return (
-    isLoaded && (
-      <AppWrapper>
-        <Typography variant="h1" gutterBottom color="primary">
-          Hello{" "}
-          <b>
-            {currentUser &&
-              getFirstName(currentUser?.displayName.toUpperCase())}
-          </b>
-          .
-        </Typography>
-        {/* {!JSON.parse(currentUser.dateOfBirth) && (
-          <>
-            <Typography className={classes.title_s_dark} variant="h6">
-              Please, enter your birth date to continue.
-            </Typography>
-            <InputContainer>
-              <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                <KeyboardDatePicker
-                  disabled={isSubmitted}
-                  required
-                  disableFuture
-                  inputVariant="outlined"
-                  id="dateOfBirth"
-                  label="Date of Birth"
-                  format="dd/MM/yyyy"
-                  value={dateOfBirth}
-                  onChange={setdateOfBirth}
-                  KeyboardButtonProps={{
-                    "aria-label": "change date",
-                  }}
-                />
-              </MuiPickersUtilsProvider>
-              {!isSubmitted && (
-                <Fab
-                  disabled={dateOfBirth ? false : true}
-                  component="button"
-                  size="medium"
-                  style={{ marginLeft: 20 }}
-                  color="primary"
-                  aria-label="chevron-right"
-                  aria-haspopup="false"
-                  onClick={createUserInFirebase}>
-                  <ChevronRightRoundedIcon style={{ fontSize: 30 }} />
-                </Fab>
-              )}
-              {isSubmitted && (
-                <CircularProgress size={48} style={{ marginLeft: 20 }} />
-              )}
-            </InputContainer>
-          </> 
-        )}*/}
-        {/* {JSON.parse(currentUser.dateOfBirth) && (
-          <Typography className={classes.title_s_dark} variant="h4">
-            {calcNextBirthday(JSON.parse(currentUser.dateOfBirth))}
+    <AppWrapper>
+      <Typography variant="h1" gutterBottom color="primary">
+        Hello <b>{getFirstName(currentUser.displayName.toUpperCase())}</b>.
+      </Typography>
+      {!user.hasOwnProperty("dateOfBirth") && (
+        <>
+          <Typography className={classes.title_s_dark} variant="h6">
+            Please, enter your birth date to continue.
           </Typography>
-        )} */}
-        <Settings />
-      </AppWrapper>
-    )
+          <InputContainer>
+            <MuiPickersUtilsProvider utils={DateFnsUtils}>
+              <KeyboardDatePicker
+                disabled={isSubmitted}
+                required
+                disableFuture
+                inputVariant="outlined"
+                id="dateOfBirth"
+                label="Date of Birth"
+                format="dd/MM/yyyy"
+                value={dateOfBirth}
+                onChange={setdateOfBirth}
+                KeyboardButtonProps={{
+                  "aria-label": "change date",
+                }}
+              />
+            </MuiPickersUtilsProvider>
+            {!isSubmitted && (
+              <Fab
+                disabled={
+                  // eslint-disable-next-line eqeqeq
+                  dateOfBirth === null || dateOfBirth == "Invalid Date"
+                    ? true
+                    : false
+                }
+                component="button"
+                size="medium"
+                style={{ marginLeft: 20 }}
+                color="primary"
+                aria-label="chevron-right"
+                aria-haspopup="false"
+                onClick={createUserInFirebase}>
+                <ChevronRightRoundedIcon style={{ fontSize: 30 }} />
+              </Fab>
+            )}
+            {isSubmitted && (
+              <CircularProgress size={48} style={{ marginLeft: 20 }} />
+            )}
+          </InputContainer>
+        </>
+      )}
+      {user.hasOwnProperty("dateOfBirth") && (
+        <Typography className={classes.title_s_dark} variant="h4">
+          {calcNextBirthday(JSON.parse(currentUser.dateOfBirth))}
+        </Typography>
+      )}
+      <Settings />
+    </AppWrapper>
   );
 };
 
