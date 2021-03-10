@@ -88,7 +88,14 @@ const Login = () => {
 
         <FormControl margin="normal">
           <Button
-            disabled={!(values.firstName !== "" && dateOfBirth !== null)}
+            disabled={
+              values.firstName === "" ||
+              // eslint-disable-next-line eqeqeq
+              dateOfBirth === null ||
+              dateOfBirth == "Invalid Date"
+                ? true
+                : false
+            }
             variant="contained"
             color="primary"
             type="submit">

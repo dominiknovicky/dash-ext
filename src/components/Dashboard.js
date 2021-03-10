@@ -20,7 +20,7 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { useToasts } from "react-toast-notifications";
 import styled from "styled-components";
 import { TransverseLoading } from "react-loadingg";
-
+import { useStateWithCallbackLazy } from "use-state-with-callback";
 const Dashboard = () => {
   const [user] = useAuthState(auth);
 
@@ -39,23 +39,20 @@ const Dashboard = () => {
   const { addToast } = useToasts();
 
   const [dateOfBirth, setdateOfBirth] = useState(null);
-  const [currentUser, setCurrentUser] = useState(null);
+  const [currentUser, setCurrentUser] = useStateWithCallbackLazy(null);
   const [isSubmitted, setisSubmitted] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log("test");
     const docRef = db.collection("users").doc(user.email);
     docRef
       .get()
       .then((doc) => {
         if (doc.exists) {
-          setCurrentUser(doc.data());
-          console.log(doc.data().hasOwnProperty("dateOfBirth"));
+          setCurrentUser(doc.data(), () => setLoading(false));
         } else {
-          setCurrentUser(user);
+          setCurrentUser(user, () => setLoading(false));
         }
-        setLoading(false);
       })
       .catch((error) => {
         addToast(error.message, {
@@ -65,7 +62,7 @@ const Dashboard = () => {
       });
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isSubmitted]);
+  }, [isSubmitted, currentUser]);
 
   const createUserInFirebase = () => {
     setisSubmitted(true);
@@ -93,7 +90,7 @@ const Dashboard = () => {
       });
   };
 
-  if (loading && !currentUser) {
+  if (loading) {
     return (
       <Wrapper>
         <TransverseLoading color={theme.palette.primary.main} />
@@ -106,7 +103,7 @@ const Dashboard = () => {
       <Typography variant="h1" gutterBottom color="primary">
         Hello <b>{getFirstName(currentUser.displayName.toUpperCase())}</b>.
       </Typography>
-      {!user.hasOwnProperty("dateOfBirth") && (
+      {!currentUser.hasOwnProperty("dateOfBirth") && (
         <>
           <Typography className={classes.title_s_dark} variant="h6">
             Please, enter your birth date to continue.
@@ -152,7 +149,7 @@ const Dashboard = () => {
           </InputContainer>
         </>
       )}
-      {user.hasOwnProperty("dateOfBirth") && (
+      {currentUser.hasOwnProperty("dateOfBirth") && (
         <Typography className={classes.title_s_dark} variant="h4">
           {calcNextBirthday(JSON.parse(currentUser.dateOfBirth))}
         </Typography>
