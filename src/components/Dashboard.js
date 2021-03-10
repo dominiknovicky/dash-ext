@@ -13,7 +13,7 @@ import {
 } from "@material-ui/pickers";
 import AppWrapper from "./elements/AppWrapper";
 import { AppWrapper as Wrapper } from "../styles/BasicStyles";
-import Settings from "./Settings";
+import Settings from "./settings/Settings";
 import { db } from "../firebase";
 import { auth } from "../firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -62,7 +62,7 @@ const Dashboard = () => {
       });
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isSubmitted, currentUser]);
+  }, [isSubmitted]);
 
   const createUserInFirebase = () => {
     setisSubmitted(true);
