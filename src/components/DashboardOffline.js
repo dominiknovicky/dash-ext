@@ -1,16 +1,16 @@
-import React, { useState } from "react";
+import React from "react";
 import { calcNextBirthday } from "../utils";
-import { Typography, Fab, Menu, MenuItem, Fade } from "@material-ui/core";
+import { Typography, Fab } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import { reactLocalStorage } from "reactjs-localstorage";
 import { parseUserFromLocalStorage } from "../utils";
 import { goTo } from "react-chrome-extension-router";
 import { getFirstName } from "../utils";
 import theme from "../theme";
-import SettingsIcon from "@material-ui/icons/Settings";
 import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 import AppWrapper from "./elements/AppWrapper";
 import Login from "./Login";
+import styled from "styled-components";
 
 const DashboardOffline = () => {
   const useStyles = makeStyles(() => ({
@@ -24,17 +24,7 @@ const DashboardOffline = () => {
     },
   }));
   const classes = useStyles();
-  const [anchorEl, setAnchorEl] = useState(null);
-  const open = Boolean(anchorEl);
   const localUser = parseUserFromLocalStorage(reactLocalStorage.get("user"));
-
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
 
   const logoutAndLeave = () => {
     reactLocalStorage.remove("user");
@@ -50,35 +40,22 @@ const DashboardOffline = () => {
         {calcNextBirthday(localUser?.dateOfBirth)}
       </Typography>
 
-      {/* Settings */}
-      <Fab
-        className={classes.fab}
+      <StyledFab
         color="secondary"
-        aria-label="add"
         aria-controls="fade-menu"
         aria-haspopup="true"
-        size="medium"
-        onClick={handleClick}>
-        <SettingsIcon />
-      </Fab>
-      <Menu
-        key="fade-menu"
-        id="fade-menu"
-        anchorEl={anchorEl}
-        keepMounted
-        open={open}
-        onClose={handleClose}
-        TransitionComponent={Fade}>
-        <MenuItem
-          onClick={logoutAndLeave}
-          className={classes.title_s_dark}
-          style={{ fontSize: 14, fontWeight: 500 }}>
-          <ExitToAppIcon style={{ marginRight: 10, fontSize: 20 }} />
-          <span style={{ textTransform: "uppercase" }}>Logout</span>
-        </MenuItem>
-      </Menu>
+        onClick={logoutAndLeave}
+        size="medium">
+        <ExitToAppIcon />
+      </StyledFab>
     </AppWrapper>
   );
 };
 
 export default DashboardOffline;
+
+const StyledFab = styled(Fab)`
+  position: absolute !important;
+  left: 20px !important;
+  bottom: 20px !important;
+`;
