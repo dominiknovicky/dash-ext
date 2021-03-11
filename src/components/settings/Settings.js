@@ -1,12 +1,16 @@
 import React from "react";
-import { Tabs, Tab, Fab, Fade, Menu, Button } from "@material-ui/core";
+import {
+  Tabs,
+  Tab,
+  Fab,
+  Fade,
+  Menu,
+  CircularProgress,
+} from "@material-ui/core";
 import SettingsIcon from "@material-ui/icons/Settings";
-import ExitToAppIcon from "@material-ui/icons/ExitToApp";
-import { goTo } from "react-chrome-extension-router";
 import { auth, db } from "../../firebase";
 import { SettingsWrapper } from "../../styles/BasicStyles";
 import theme from "../../theme";
-import Login from "../Login";
 import Profile from "./Profile";
 import styled from "styled-components";
 import TabPanel from "./TabPanel";
@@ -34,22 +38,14 @@ const Settings = () => {
     setAnchorEl(null);
   };
 
-  const signOutAndLeave = () => {
-    auth.signOut();
-    goTo(Login);
-  };
-
   if (userLoading || userDetailLoading) {
     return (
-      <StyledFab
-        disabled
-        color="secondary"
-        aria-controls="fade-menu"
-        aria-haspopup="true"
-        onClick={handleClick}
-        size="medium">
-        <SettingsIcon />
-      </StyledFab>
+      <CircularProgressContainer>
+        <Fab disabled color="secondary" size="medium">
+          <SettingsIcon />
+        </Fab>
+        <StyledCircularProgress size={58} />
+      </CircularProgressContainer>
     );
   }
   return (
@@ -81,12 +77,6 @@ const Settings = () => {
             <Tab label="Profile" {...a11yProps(0)} />
             <Tab label="Item Two" {...a11yProps(1)} />
             <Tab label="Item Three" {...a11yProps(2)} />
-            <StyledButton
-              startIcon={<ExitToAppIcon />}
-              color="primary"
-              onClick={signOutAndLeave}>
-              Logout
-            </StyledButton>
           </StyledTabs>
           <TabPanel value={value} index={0}>
             <Profile user={userDetail.data()} />
@@ -115,14 +105,31 @@ function a11yProps(index) {
 const StyledTabs = styled(Tabs)`
   border-right: 1px solid ${theme.palette.divider};
   padding-top: 10px;
-`;
-
-const StyledButton = styled(Button)`
-  padding: 20px !important;
+  height: 100% !important;
 `;
 
 const StyledFab = styled(Fab)`
   position: absolute !important;
   left: 20px !important;
   bottom: 20px !important;
+`;
+
+const CircularProgressContainer = styled.div`
+  position: absolute !important;
+  left: 20px !important;
+  bottom: 20px !important;
+
+  > button {
+    :disabled {
+      background-color: ${theme.palette.secondary.main};
+      color: white;
+    }
+  }
+`;
+
+const StyledCircularProgress = styled(CircularProgress)`
+  color: ${theme.palette.primary.main};
+  position: absolute !important;
+  left: -5px !important;
+  bottom: -5px !important;
 `;

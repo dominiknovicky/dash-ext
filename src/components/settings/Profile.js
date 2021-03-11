@@ -5,7 +5,11 @@ import {
   KeyboardDatePicker,
 } from "@material-ui/pickers";
 import DateFnsUtils from "@date-io/date-fns";
-import { FormControl, TextField, Button } from "@material-ui/core";
+import { TextField, Button } from "@material-ui/core";
+import ExitToAppIcon from "@material-ui/icons/ExitToApp";
+import { auth } from "../../firebase";
+import Login from "../Login";
+import { goTo } from "react-chrome-extension-router";
 
 const Profile = ({ user }) => {
   const [dateOfBirth, setdateOfBirth] = useState(null);
@@ -14,6 +18,11 @@ const Profile = ({ user }) => {
     setdateOfBirth(JSON.parse(user.dateOfBirth));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const signOutAndLeave = () => {
+    auth.signOut();
+    goTo(Login);
+  };
 
   return (
     <ProfileContainer>
@@ -53,6 +62,13 @@ const Profile = ({ user }) => {
           }}
         />
       </MuiPickersUtilsProvider>
+
+      <Button
+        startIcon={<ExitToAppIcon />}
+        color="primary"
+        onClick={signOutAndLeave}>
+        Logout
+      </Button>
     </ProfileContainer>
   );
 };
