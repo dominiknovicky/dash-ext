@@ -13,6 +13,14 @@ var firebaseConfig = {
   measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID,
 };
 
-firebase.initializeApp(firebaseConfig);
+const firebaseApp = firebase.initializeApp(firebaseConfig);
+const db = firebaseApp.firestore();
+const auth = firebaseApp.auth();
+const provider = new firebase.auth.GoogleAuthProvider();
 
-export default firebase;
+const uiConfig = {
+  signInFlow: "popup",
+  signInOptions: [firebase.auth.GoogleAuthProvider.PROVIDER_ID],
+};
+
+export { auth, provider, db, uiConfig };

@@ -1,32 +1,30 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState } from "react";
 import { calcNextBirthday } from "../utils";
 import { makeStyles } from "@material-ui/styles";
 import { getFirstName } from "../utils";
-import { popToTop } from "react-chrome-extension-router";
-import { useStateWithCallbackLazy } from "use-state-with-callback";
 import { CircularProgress } from "@material-ui/core";
 import theme from "../theme";
-import { Typography, Fab, Menu, MenuItem, Fade } from "@material-ui/core";
-import SettingsIcon from "@material-ui/icons/Settings";
-import ExitToAppIcon from "@material-ui/icons/ExitToApp";
-import AccountCircleIcon from "@material-ui/icons/AccountCircle";
+import { Typography, Fab } from "@material-ui/core";
 import ChevronRightRoundedIcon from "@material-ui/icons/ChevronRightRounded";
 import DateFnsUtils from "@date-io/date-fns";
 import {
   MuiPickersUtilsProvider,
   KeyboardDatePicker,
 } from "@material-ui/pickers";
-import firebase from "../firebase";
 import AppWrapper from "./elements/AppWrapper";
-import { LoadingContext } from "../contexts/LoadingContext";
+import { AppWrapper as Wrapper } from "../styles/BasicStyles";
+import Settings from "./settings/Settings";
+import { db } from "../firebase";
+import { auth } from "../firebase";
+import { useAuthState } from "react-firebase-hooks/auth";
 import { useToasts } from "react-toast-notifications";
-import Settings from "./Settings";
+import styled from "styled-components";
+import { TransverseLoading } from "react-loadingg";
+import { useStateWithCallbackLazy } from "use-state-with-callback";
+const Dashboard = () => {
+  const [user] = useAuthState(auth);
 
-const Dashboard = ({ user }) => {
   const useStyles = makeStyles(() => ({
-    title_p_main: {
-      color: theme.palette.primary.main,
-    },
     title_s_dark: {
       color: theme.palette.secondary.dark,
     },
@@ -35,64 +33,36 @@ const Dashboard = ({ user }) => {
       left: theme.spacing(2),
       bottom: theme.spacing(2),
     },
-    inputWrapper: {
-      display: "flex",
-      alignItems: "center",
-      marginTop: 10,
-    },
-    sendIcon: {
-      fontSize: 30,
-    },
-    fabSend: {
-      marginLeft: 20,
-    },
   }));
+
   const classes = useStyles();
   const { addToast } = useToasts();
 
   const [dateOfBirth, setdateOfBirth] = useState(null);
-  const [currentUser, setCurrentUser] = useStateWithCallbackLazy();
+  const [currentUser, setCurrentUser] = useStateWithCallbackLazy(null);
   const [isSubmitted, setisSubmitted] = useState(false);
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const open = Boolean(anchorEl);
-  const [isLoaded, setIsLoaded] = useContext(LoadingContext);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const docRef = firebase.firestore().collection("users").doc(user.email);
+    const docRef = db.collection("users").doc(user.email);
     docRef
       .get()
       .then((doc) => {
         if (doc.exists) {
-          setCurrentUser(doc.data(), () => {
-            setIsLoaded(true);
-          });
+          setCurrentUser(doc.data(), () => setLoading(false));
         } else {
-          setCurrentUser(user, () => {
-            setIsLoaded(true);
-          });
+          setCurrentUser(user, () => setLoading(false));
         }
       })
       .catch((error) => {
         addToast(error.message, {
           appearance: "error",
         });
-        setIsLoaded(true);
+        setLoading(false);
       });
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSubmitted]);
-
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  const signOutAndLeave = () => {
-    firebase.auth().signOut();
-    popToTop();
-  };
 
   const createUserInFirebase = () => {
     setisSubmitted(true);
@@ -102,7 +72,6 @@ const Dashboard = ({ user }) => {
       dateOfBirth: JSON.stringify(dateOfBirth),
     };
 
-    const db = firebase.firestore();
     db.collection("users")
       .doc(currentUser.email)
       .set(user)
@@ -121,21 +90,25 @@ const Dashboard = ({ user }) => {
       });
   };
 
-  return currentUser && isLoaded ? (
+  if (loading) {
+    return (
+      <Wrapper>
+        <TransverseLoading color={theme.palette.primary.main} />
+      </Wrapper>
+    );
+  }
+
+  return (
     <AppWrapper>
-      <Typography variant="h1" gutterBottom className={classes.title_p_main}>
-        Hello{" "}
-        <b>
-          {currentUser && getFirstName(currentUser.displayName.toUpperCase())}
-        </b>
-        .
+      <Typography variant="h1" gutterBottom color="primary">
+        Hello <b>{getFirstName(currentUser.displayName.toUpperCase())}</b>.
       </Typography>
-      {!currentUser.dateOfBirth && (
+      {!currentUser.hasOwnProperty("dateOfBirth") && (
         <>
           <Typography className={classes.title_s_dark} variant="h6">
             Please, enter your birth date to continue.
           </Typography>
-          <div className={classes.inputWrapper}>
+          <InputContainer>
             <MuiPickersUtilsProvider utils={DateFnsUtils}>
               <KeyboardDatePicker
                 disabled={isSubmitted}
@@ -154,66 +127,42 @@ const Dashboard = ({ user }) => {
             </MuiPickersUtilsProvider>
             {!isSubmitted && (
               <Fab
-                disabled={dateOfBirth ? false : true}
+                disabled={
+                  // eslint-disable-next-line eqeqeq
+                  dateOfBirth === null || dateOfBirth == "Invalid Date"
+                    ? true
+                    : false
+                }
                 component="button"
                 size="medium"
-                className={classes.fabSend}
+                style={{ marginLeft: 20 }}
                 color="primary"
                 aria-label="chevron-right"
                 aria-haspopup="false"
                 onClick={createUserInFirebase}>
-                <ChevronRightRoundedIcon className={classes.sendIcon} />
+                <ChevronRightRoundedIcon style={{ fontSize: 30 }} />
               </Fab>
             )}
             {isSubmitted && (
-              <CircularProgress size={48} className={classes.fabSend} />
+              <CircularProgress size={48} style={{ marginLeft: 20 }} />
             )}
-          </div>
+          </InputContainer>
         </>
       )}
-      {currentUser.dateOfBirth && (
+      {currentUser.hasOwnProperty("dateOfBirth") && (
         <Typography className={classes.title_s_dark} variant="h4">
           {calcNextBirthday(JSON.parse(currentUser.dateOfBirth))}
         </Typography>
       )}
-      <Fab
-        className={classes.fab}
-        color="secondary"
-        aria-controls="fade-menu"
-        aria-haspopup="true"
-        size="medium"
-        onClick={handleClick}>
-        <SettingsIcon />
-      </Fab>
-      <Menu
-        id="fade-menu"
-        anchorEl={anchorEl}
-        keepMounted
-        open={open}
-        onClose={handleClose}
-        TransitionComponent={Fade}>
-        {/* <MenuItem
-            className={classes.title_s_dark}
-            // onClick={signOutAndLeave}
-            style={{ fontSize: 14, fontWeight: 500 }}>
-            <AccountCircleIcon style={{ marginRight: 10, fontSize: 20 }} />
-            <span style={{ textTransform: "uppercase" }}>Profile</span>
-          </MenuItem> */}
-        <MenuItem
-          onClick={signOutAndLeave}
-          className={classes.title_s_dark}
-          style={{ fontSize: 14, fontWeight: 500 }}>
-          <ExitToAppIcon style={{ marginRight: 10, fontSize: 20 }} />
-          <span style={{ textTransform: "uppercase" }}>Logout</span>
-        </MenuItem>
-      </Menu>
-      {/* <Settings /> */}
-    </AppWrapper>
-  ) : (
-    <AppWrapper>
-      <CircularProgress />
+      <Settings />
     </AppWrapper>
   );
 };
 
 export default Dashboard;
+
+const InputContainer = styled.div`
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+`;

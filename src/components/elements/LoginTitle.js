@@ -1,8 +1,9 @@
 import React from "react";
 import { Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
+import theme from "../../theme";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   title_h4_primary: {
     color: theme.palette.primary.main,
   },

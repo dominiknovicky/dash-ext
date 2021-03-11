@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useState } from "react";
 import { FormControl, TextField, Button } from "@material-ui/core";
 import {
   MuiPickersUtilsProvider,
@@ -6,44 +6,23 @@ import {
 } from "@material-ui/pickers";
 import DateFnsUtils from "@date-io/date-fns";
 import { reactLocalStorage } from "reactjs-localstorage";
-import { withTheme } from "@material-ui/styles";
 import { goTo } from "react-chrome-extension-router";
-import { CircularProgress } from "@material-ui/core";
-import Dashboard from "./Dashboard";
 import DashboardOffline from "./DashboardOffline";
 import Divider from "./elements/Divider";
 import LoginTitle from "./elements/LoginTitle";
-import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth";
-import { parseUserFromLocalStorage } from "../utils";
-import firebase from "../firebase";
-import { LoadingContext } from "../contexts/LoadingContext";
+import { auth, provider } from "../firebase";
+import GoogleLoginButton from "./elements/GoogleLoginButton";
+import styled from "styled-components";
+import { useToasts } from "react-toast-notifications";
+import AppWrapper from "./elements/AppWrapper";
+import Dashboard from "./Dashboard";
 
-const uiConfig = {
-  signInFlow: "popup",
-  signInOptions: [firebase.auth.GoogleAuthProvider.PROVIDER_ID],
-};
-
-const Login = ({ theme }) => {
+const Login = () => {
   const [values, setValues] = useState({
     firstName: "",
   });
   const [dateOfBirth, setdateOfBirth] = useState(null);
-  const [isLoaded, setIsLoaded] = useContext(LoadingContext);
-
-  useEffect(() => {
-    const unsubscribe = firebase.auth().onAuthStateChanged((user) => {
-      if (!!user) goTo(Dashboard, { user });
-
-      let localUser = reactLocalStorage.get("user");
-      localUser = parseUserFromLocalStorage(localUser);
-      if (!!localUser) goTo(DashboardOffline);
-
-      setIsLoaded(true);
-    });
-
-    return unsubscribe;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const { addToast } = useToasts();
 
   const handleChange = (prop) => (event) => {
     setValues({ ...values, [prop]: event.target.value });
@@ -60,64 +39,82 @@ const Login = ({ theme }) => {
     goTo(DashboardOffline);
   };
 
-  return !isLoaded ? (
-    <CircularProgress />
-  ) : (
-    <form
-      onSubmit={handleSubmit}
-      style={{
-        flexDirection: "column",
-        display: "flex",
-        maxWidth: "300px",
-        width: "100%",
-      }}>
-      <LoginTitle />
+  const signIn = (e) => {
+    e.preventDefault();
+    auth
+      .signInWithPopup(provider)
+      .then(() => goTo(Dashboard))
+      .catch((error) =>
+        addToast(error.message, {
+          appearance: "error",
+        })
+      );
+  };
 
-      <FormControl>
-        <TextField
-          required
-          margin="normal"
-          id="firstName"
-          label="First Name"
-          variant="outlined"
-          value={values.firstName}
-          onChange={handleChange("firstName")}
-          type="text"
-        />
-      </FormControl>
+  return (
+    <AppWrapper>
+      <FormContainer onSubmit={handleSubmit}>
+        <LoginTitle />
 
-      <MuiPickersUtilsProvider utils={DateFnsUtils}>
-        <KeyboardDatePicker
-          required
-          margin="normal"
-          disableFuture
-          inputVariant="outlined"
-          id="dateOfBirth"
-          label="Date of Birth"
-          format="dd/MM/yyyy"
-          value={dateOfBirth}
-          onChange={setdateOfBirth}
-          KeyboardButtonProps={{
-            "aria-label": "change date",
-          }}
-        />
-      </MuiPickersUtilsProvider>
+        <FormControl>
+          <TextField
+            required
+            margin="normal"
+            id="firstName"
+            label="First Name"
+            variant="outlined"
+            value={values.firstName}
+            onChange={handleChange("firstName")}
+            type="text"
+          />
+        </FormControl>
 
-      <FormControl margin="normal">
-        <Button
-          disabled={!(values.firstName !== "" && dateOfBirth !== null)}
-          variant="contained"
-          color="primary"
-          type="submit">
-          Submit
-        </Button>
-      </FormControl>
+        <MuiPickersUtilsProvider utils={DateFnsUtils}>
+          <KeyboardDatePicker
+            required
+            margin="normal"
+            disableFuture
+            inputVariant="outlined"
+            id="dateOfBirth"
+            label="Date of Birth"
+            format="dd/MM/yyyy"
+            value={dateOfBirth}
+            onChange={setdateOfBirth}
+            KeyboardButtonProps={{
+              "aria-label": "change date",
+            }}
+          />
+        </MuiPickersUtilsProvider>
 
-      <Divider text="or" color={theme.palette.secondary} />
+        <FormControl margin="normal">
+          <Button
+            disabled={
+              values.firstName === "" ||
+              // eslint-disable-next-line eqeqeq
+              dateOfBirth === null ||
+              dateOfBirth == "Invalid Date"
+                ? true
+                : false
+            }
+            variant="contained"
+            color="primary"
+            type="submit">
+            Submit
+          </Button>
+        </FormControl>
 
-      <StyledFirebaseAuth uiConfig={uiConfig} firebaseAuth={firebase.auth()} />
-    </form>
+        <Divider text="or" />
+        <GoogleLoginButton onClick={signIn} key="example" id="example" />
+      </FormContainer>
+    </AppWrapper>
   );
 };
 
-export default withTheme(Login);
+export default Login;
+
+const FormContainer = styled.form`
+  flex-direction: column;
+  display: flex;
+  max-width: 300px;
+  width: 100%;
+`;
