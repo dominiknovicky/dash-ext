@@ -79,4 +79,13 @@ const ProfileContainer = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
+
+  > div {
+    label {
+      color: red !important;
+    }
+    div {
+      color: red !important;
+    }
+  }
 `;
