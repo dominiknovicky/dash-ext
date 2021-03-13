@@ -1,30 +1,29 @@
 import React, { useEffect, useState } from "react";
-import { calcNextBirthday } from "../utils";
-import { makeStyles } from "@material-ui/styles";
-import { getFirstName } from "../utils";
-import { CircularProgress } from "@material-ui/core";
-import theme from "../theme";
-import { Typography, Fab } from "@material-ui/core";
-import ChevronRightRoundedIcon from "@material-ui/icons/ChevronRightRounded";
-import DateFnsUtils from "@date-io/date-fns";
 import {
-  MuiPickersUtilsProvider,
-  KeyboardDatePicker,
-} from "@material-ui/pickers";
-import AppWrapper from "./elements/AppWrapper";
-import { AppWrapper as Wrapper } from "../styles/BasicStyles";
-import { db } from "../firebase";
-import { auth } from "../firebase";
+  calcNextBirthday,
+  isDayOfBirthChanged,
+  getFirstName,
+} from "../../utils";
+import theme from "../../theme";
+import { Typography, Fab, CircularProgress } from "@material-ui/core";
+import { makeStyles } from "@material-ui/styles";
+import { ChevronRightRounded, ExitToApp } from "@material-ui/icons";
+import AppWrapper from "../elements/AppWrapper";
+import { AppWrapper as Wrapper } from "../../styles/BasicStyles";
+import { db, auth } from "../../firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useToasts } from "react-toast-notifications";
-import styled from "styled-components";
 import { TransverseLoading } from "react-loadingg";
 import { useStateWithCallbackLazy } from "use-state-with-callback";
-import ExitToAppIcon from "@material-ui/icons/ExitToApp";
-import Login from "./Login";
+import Login from "../Login";
 import { goTo } from "react-chrome-extension-router";
-import moment from "moment";
-import Transition from "./elements/Transition";
+import Transition from "../elements/Transition";
+import DatePicker from "../elements/DatePicker";
+import {
+  InputContainer,
+  StyledFab,
+  InputContainerAbsolute,
+} from "./DashboardStyles";
 
 const Dashboard = () => {
   const [user] = useAuthState(auth);
@@ -70,13 +69,6 @@ const Dashboard = () => {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSubmitted]);
-
-  const isDayOfBirthChanged = () => {
-    return (
-      moment(dateOfBirth).format("YYYY-MM-DD") ===
-      moment(JSON.parse(currentUser.dateOfBirth)).format("YYYY-MM-DD")
-    );
-  };
 
   const createUserInFirebase = () => {
     setisSubmitted(true);
@@ -141,72 +133,42 @@ const Dashboard = () => {
 
   return (
     <AppWrapper>
+      {/* Hello EXAMPLE */}
       <Transition>
         <Typography
-          style={{ userSelect: "none" }}
+          style={{ userSelect: "none", marginBottom: "15px" }}
           variant="h1"
-          gutterBottom
           color="primary">
           Hello <b>{getFirstName(currentUser.displayName.toUpperCase())}</b>.
         </Typography>
       </Transition>
-      {(!currentUser.hasOwnProperty("dateOfBirth") || changeDayOfBirth) && (
+
+      {!currentUser.hasOwnProperty("dateOfBirth") && (
         <>
           <Transition>
             <Typography
               style={{ userSelect: "none" }}
               className={classes.title_s_dark}
               variant="h6">
-              {changeDayOfBirth ? (
-                <span>
-                  Please, enter your birth date to continue or{" "}
-                  <GoBack onClick={() => setChangeDayOfBirth(false)}>
-                    go back
-                  </GoBack>
-                  .
-                </span>
-              ) : (
-                "Please, enter your birth date to continue."
-              )}
+              Please, enter your birth date to continue.
             </Typography>
           </Transition>
+
           <Transition>
             <InputContainer>
-              <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                <KeyboardDatePicker
-                  disabled={isSubmitted}
-                  required
-                  disableFuture
-                  inputVariant="outlined"
-                  id="dateOfBirth"
-                  label="Date of Birth"
-                  format="dd/MM/yyyy"
-                  value={dateOfBirth}
-                  onChange={setdateOfBirth}
-                  KeyboardButtonProps={{
-                    "aria-label": "change date",
-                  }}
-                />
-              </MuiPickersUtilsProvider>
+              <DateOfBirth
+                disabled={isSubmitted}
+                value={dateOfBirth}
+                onChange={setdateOfBirth}
+              />
 
-              {!isSubmitted && !changeDayOfBirth && (
+              {!isSubmitted && (
                 <FabComponent
                   disabled={
                     // eslint-disable-next-line eqeqeq
                     dateOfBirth === null || dateOfBirth == "Invalid Date"
                   }
                   onClick={createUserInFirebase}
-                />
-              )}
-              {!isSubmitted && changeDayOfBirth && (
-                <FabComponent
-                  disabled={
-                    isDayOfBirthChanged() ||
-                    dateOfBirth === null ||
-                    // eslint-disable-next-line eqeqeq
-                    dateOfBirth == "Invalid Date"
-                  }
-                  onClick={updateDateOfBirth}
                 />
               )}
               {isSubmitted && (
@@ -217,31 +179,83 @@ const Dashboard = () => {
         </>
       )}
 
-      {currentUser.hasOwnProperty("dateOfBirth") && !changeDayOfBirth && (
-        <Transition>
-          <Typography
-            style={{ userSelect: "none" }}
-            onDoubleClick={() => setChangeDayOfBirth(true)}
-            className={classes.title_s_dark}
-            variant="h4">
-            {calcNextBirthday(JSON.parse(currentUser.dateOfBirth))}
-          </Typography>
-        </Transition>
+      {/* XYZ Days Until Your Birthday */}
+      {currentUser.hasOwnProperty("dateOfBirth") && (
+        <div style={{ position: "relative" }}>
+          <Transition>
+            <Typography
+              style={{ userSelect: "none", cursor: "pointer" }}
+              onClick={() => setChangeDayOfBirth(!changeDayOfBirth)}
+              className={classes.title_s_dark}
+              variant="h4">
+              {calcNextBirthday(JSON.parse(currentUser.dateOfBirth))}
+            </Typography>
+
+            {changeDayOfBirth && (
+              <InputContainerAbsolute>
+                <DateOfBirth
+                  disabled={isSubmitted}
+                  value={dateOfBirth}
+                  onChange={setdateOfBirth}
+                  label="Change Date of Birth"
+                />
+
+                {!isSubmitted && (
+                  <FabComponent
+                    disabled={
+                      isDayOfBirthChanged(dateOfBirth, currentUser) ||
+                      dateOfBirth === null ||
+                      // eslint-disable-next-line eqeqeq
+                      dateOfBirth == "Invalid Date"
+                    }
+                    onClick={updateDateOfBirth}
+                  />
+                )}
+                {isSubmitted && (
+                  <CircularProgress size={48} style={{ marginLeft: 20 }} />
+                )}
+              </InputContainerAbsolute>
+            )}
+          </Transition>
+        </div>
       )}
 
-      <StyledFab
-        color="secondary"
-        aria-controls="fade-menu"
-        aria-haspopup="true"
-        onClick={signOutAndLeave}
-        size="medium">
-        <ExitToAppIcon />
-      </StyledFab>
+      {/* EXIT APP */}
+      <ExitApp onClick={signOutAndLeave} />
     </AppWrapper>
   );
 };
 
 export default Dashboard;
+
+const DateOfBirth = ({
+  isSubmitted,
+  value,
+  onChange,
+  label = "Date of Birth",
+}) => (
+  <DatePicker
+    disabled={isSubmitted}
+    required
+    disableFuture
+    inputVariant="outlined"
+    id="dateOfBirth"
+    label={label}
+    value={value}
+    onChange={onChange}
+  />
+);
+
+const ExitApp = ({ onClick }) => (
+  <StyledFab
+    color="secondary"
+    aria-controls="fade-menu"
+    aria-haspopup="true"
+    onClick={onClick}
+    size="medium">
+    <ExitToApp />
+  </StyledFab>
+);
 
 const FabComponent = ({ disabled, onClick }) => (
   <Fab
@@ -253,22 +267,6 @@ const FabComponent = ({ disabled, onClick }) => (
     aria-label="chevron-right"
     aria-haspopup="false"
     onClick={onClick}>
-    <ChevronRightRoundedIcon style={{ fontSize: 30 }} />
+    <ChevronRightRounded style={{ fontSize: 30 }} />
   </Fab>
 );
-
-const InputContainer = styled.div`
-  display: flex;
-  align-items: center;
-  margin-top: 10px;
-`;
-
-const StyledFab = styled(Fab)`
-  position: absolute !important;
-  left: 20px !important;
-  bottom: 20px !important;
-`;
-
-const GoBack = styled.u`
-  cursor: pointer;
-`;

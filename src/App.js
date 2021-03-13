@@ -8,8 +8,8 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "./firebase";
 import { reactLocalStorage } from "reactjs-localstorage";
 import { parseUserFromLocalStorage } from "./utils";
-import Dashboard from "./components/Dashboard";
-import DashboardOffline from "./components/DashboardOffline";
+import Dashboard from "./components/dashboard/Dashboard";
+import DashboardOffline from "./components/dashboard/DashboardOffline";
 import { TransverseLoading } from "react-loadingg";
 import theme from "./theme";
 

@@ -7,7 +7,6 @@ import {
 import DateFnsUtils from "@date-io/date-fns";
 import { reactLocalStorage } from "reactjs-localstorage";
 import { goTo } from "react-chrome-extension-router";
-import DashboardOffline from "./DashboardOffline";
 import Divider from "./elements/Divider";
 import LoginTitle from "./elements/LoginTitle";
 import { auth, provider } from "../firebase";
@@ -15,7 +14,8 @@ import GoogleLoginButton from "./elements/GoogleLoginButton";
 import styled from "styled-components";
 import { useToasts } from "react-toast-notifications";
 import AppWrapper from "./elements/AppWrapper";
-import Dashboard from "./Dashboard";
+import Dashboard from "./dashboard/Dashboard";
+import DashboardOffline from "./dashboard/DashboardOffline";
 
 const Login = () => {
   const [values, setValues] = useState({
