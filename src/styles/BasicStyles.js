@@ -1,5 +1,6 @@
 import styled from "styled-components";
 
+// APP
 export const AppWrapper = styled.div`
   background: #fafafa;
   width: 100%;
@@ -11,4 +12,12 @@ export const AppWrapper = styled.div`
   align-items: center;
   flex-direction: column;
   position: relative;
+`;
+
+// SETTINGS WRAPPER
+export const SettingsWrapper = styled.div`
+  background-color: ${({ theme }) => theme.palette.background.paper};
+  display: flex;
+  outline: none;
+  width: 500px;
 `;
