@@ -18,6 +18,13 @@ export const calcNextBirthday = (dateOfBirth) => {
   }
 };
 
+export const isDayOfBirthChanged = (dateOfBirth, currentUser) => {
+  return (
+    moment(dateOfBirth).format("YYYY-MM-DD") ===
+    moment(JSON.parse(currentUser.dateOfBirth)).format("YYYY-MM-DD")
+  );
+};
+
 export const getFirstName = (displayName) => {
   return displayName.split(" ")[0];
 };
