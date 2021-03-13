@@ -24,6 +24,7 @@ import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 import Login from "./Login";
 import { goTo } from "react-chrome-extension-router";
 import moment from "moment";
+import Transition from "./elements/Transition";
 
 const Dashboard = () => {
   const [user] = useAuthState(auth);
@@ -140,84 +141,92 @@ const Dashboard = () => {
 
   return (
     <AppWrapper>
-      <Typography
-        style={{ userSelect: "none" }}
-        variant="h1"
-        gutterBottom
-        color="primary">
-        Hello <b>{getFirstName(currentUser.displayName.toUpperCase())}</b>.
-      </Typography>
+      <Transition>
+        <Typography
+          style={{ userSelect: "none" }}
+          variant="h1"
+          gutterBottom
+          color="primary">
+          Hello <b>{getFirstName(currentUser.displayName.toUpperCase())}</b>.
+        </Typography>
+      </Transition>
       {(!currentUser.hasOwnProperty("dateOfBirth") || changeDayOfBirth) && (
         <>
-          <Typography
-            style={{ userSelect: "none" }}
-            className={classes.title_s_dark}
-            variant="h6">
-            {changeDayOfBirth ? (
-              <span>
-                Please, enter your birth date to continue or{" "}
-                <GoBack onClick={() => setChangeDayOfBirth(false)}>
-                  go back
-                </GoBack>
-                .
-              </span>
-            ) : (
-              "Please, enter your birth date to continue."
-            )}
-          </Typography>
-          <InputContainer>
-            <MuiPickersUtilsProvider utils={DateFnsUtils}>
-              <KeyboardDatePicker
-                disabled={isSubmitted}
-                required
-                disableFuture
-                inputVariant="outlined"
-                id="dateOfBirth"
-                label="Date of Birth"
-                format="dd/MM/yyyy"
-                value={dateOfBirth}
-                onChange={setdateOfBirth}
-                KeyboardButtonProps={{
-                  "aria-label": "change date",
-                }}
-              />
-            </MuiPickersUtilsProvider>
+          <Transition>
+            <Typography
+              style={{ userSelect: "none" }}
+              className={classes.title_s_dark}
+              variant="h6">
+              {changeDayOfBirth ? (
+                <span>
+                  Please, enter your birth date to continue or{" "}
+                  <GoBack onClick={() => setChangeDayOfBirth(false)}>
+                    go back
+                  </GoBack>
+                  .
+                </span>
+              ) : (
+                "Please, enter your birth date to continue."
+              )}
+            </Typography>
+          </Transition>
+          <Transition>
+            <InputContainer>
+              <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                <KeyboardDatePicker
+                  disabled={isSubmitted}
+                  required
+                  disableFuture
+                  inputVariant="outlined"
+                  id="dateOfBirth"
+                  label="Date of Birth"
+                  format="dd/MM/yyyy"
+                  value={dateOfBirth}
+                  onChange={setdateOfBirth}
+                  KeyboardButtonProps={{
+                    "aria-label": "change date",
+                  }}
+                />
+              </MuiPickersUtilsProvider>
 
-            {!isSubmitted && !changeDayOfBirth && (
-              <FabComponent
-                disabled={
-                  // eslint-disable-next-line eqeqeq
-                  dateOfBirth === null || dateOfBirth == "Invalid Date"
-                }
-                onClick={createUserInFirebase}
-              />
-            )}
-            {!isSubmitted && changeDayOfBirth && (
-              <FabComponent
-                disabled={
-                  isDayOfBirthChanged() ||
-                  dateOfBirth === null ||
-                  // eslint-disable-next-line eqeqeq
-                  dateOfBirth == "Invalid Date"
-                }
-                onClick={updateDateOfBirth}
-              />
-            )}
-            {isSubmitted && (
-              <CircularProgress size={48} style={{ marginLeft: 20 }} />
-            )}
-          </InputContainer>
+              {!isSubmitted && !changeDayOfBirth && (
+                <FabComponent
+                  disabled={
+                    // eslint-disable-next-line eqeqeq
+                    dateOfBirth === null || dateOfBirth == "Invalid Date"
+                  }
+                  onClick={createUserInFirebase}
+                />
+              )}
+              {!isSubmitted && changeDayOfBirth && (
+                <FabComponent
+                  disabled={
+                    isDayOfBirthChanged() ||
+                    dateOfBirth === null ||
+                    // eslint-disable-next-line eqeqeq
+                    dateOfBirth == "Invalid Date"
+                  }
+                  onClick={updateDateOfBirth}
+                />
+              )}
+              {isSubmitted && (
+                <CircularProgress size={48} style={{ marginLeft: 20 }} />
+              )}
+            </InputContainer>
+          </Transition>
         </>
       )}
 
       {currentUser.hasOwnProperty("dateOfBirth") && !changeDayOfBirth && (
-        <Typography
-          style={{ userSelect: "none" }}
-          onDoubleClick={() => setChangeDayOfBirth(true)}
-          className={classes.title_s_dark}
-          variant="h4">
-          {calcNextBirthday(JSON.parse(currentUser.dateOfBirth))}
-        </Typography>
+        <Transition>
+          <Typography
+            style={{ userSelect: "none" }}
+            onDoubleClick={() => setChangeDayOfBirth(true)}
+            className={classes.title_s_dark}
+            variant="h4">
+            {calcNextBirthday(JSON.parse(currentUser.dateOfBirth))}
+          </Typography>
+        </Transition>
       )}
 
       <StyledFab
