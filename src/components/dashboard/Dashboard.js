@@ -5,7 +5,12 @@ import {
   getFirstName,
 } from "../../utils";
 import theme from "../../theme";
-import { Typography, Fab, CircularProgress } from "@material-ui/core";
+import {
+  Typography,
+  Fab,
+  CircularProgress,
+  ClickAwayListener,
+} from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import { ChevronRightRounded, ExitToApp } from "@material-ui/icons";
 import AppWrapper from "../elements/AppWrapper";
@@ -24,6 +29,7 @@ import {
   StyledFab,
   InputContainerAbsolute,
 } from "./DashboardStyles";
+import axios from "axios";
 
 const Dashboard = () => {
   const [user] = useAuthState(auth);
@@ -48,6 +54,12 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [changeDayOfBirth, setChangeDayOfBirth] = useState(false);
 
+  const clientID = "48868";
+  const clientSecret = "5fe929adaad5c787f860213518b94314dfaa8e38";
+  const refreshToken = "37f163e93a75d81084954242cb1f931d8e56be90";
+  const authLink = "https://www.strava.com/oauth/token";
+  const activitiesLink = `https://www.strava.com/api/v3/athlete/activities`;
+
   useEffect(() => {
     const docRef = db.collection("users").doc(user.email);
     docRef
@@ -69,6 +81,26 @@ const Dashboard = () => {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSubmitted]);
+
+  useEffect(() => {
+    async function fetchData() {
+      const stravaAuthResponse = await axios.all([
+        axios.post(
+          `${authLink}?client_id=${clientID}&client_secret=${clientSecret}&refresh_token=${refreshToken}&grant_type=refresh_token`
+        ),
+      ]);
+
+      const stravaActivityResponse = await axios.get(
+        `${activitiesLink}?access_token=${stravaAuthResponse[0].data.access_token}`
+      );
+
+      console.log(stravaAuthResponse[0].data.access_token);
+      console.log(stravaActivityResponse);
+    }
+
+    fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const createUserInFirebase = () => {
     setisSubmitted(true);
@@ -121,6 +153,10 @@ const Dashboard = () => {
   const signOutAndLeave = () => {
     auth.signOut();
     goTo(Login);
+  };
+
+  const handleClickAway = () => {
+    setChangeDayOfBirth(false);
   };
 
   if (loading) {
@@ -192,29 +228,31 @@ const Dashboard = () => {
             </Typography>
 
             {changeDayOfBirth && (
-              <InputContainerAbsolute>
-                <DateOfBirth
-                  disabled={isSubmitted}
-                  value={dateOfBirth}
-                  onChange={setdateOfBirth}
-                  label="Change Date of Birth"
-                />
-
-                {!isSubmitted && (
-                  <FabComponent
-                    disabled={
-                      isDayOfBirthChanged(dateOfBirth, currentUser) ||
-                      dateOfBirth === null ||
-                      // eslint-disable-next-line eqeqeq
-                      dateOfBirth == "Invalid Date"
-                    }
-                    onClick={updateDateOfBirth}
+              <ClickAwayListener onClickAway={handleClickAway}>
+                <InputContainerAbsolute>
+                  <DateOfBirth
+                    disabled={isSubmitted}
+                    value={dateOfBirth}
+                    onChange={setdateOfBirth}
+                    label="Change Date of Birth"
                   />
-                )}
-                {isSubmitted && (
-                  <CircularProgress size={48} style={{ marginLeft: 20 }} />
-                )}
-              </InputContainerAbsolute>
+
+                  {!isSubmitted && (
+                    <FabComponent
+                      disabled={
+                        isDayOfBirthChanged(dateOfBirth, currentUser) ||
+                        dateOfBirth === null ||
+                        // eslint-disable-next-line eqeqeq
+                        dateOfBirth == "Invalid Date"
+                      }
+                      onClick={updateDateOfBirth}
+                    />
+                  )}
+                  {isSubmitted && (
+                    <CircularProgress size={48} style={{ marginLeft: 20 }} />
+                  )}
+                </InputContainerAbsolute>
+              </ClickAwayListener>
             )}
           </Transition>
         </div>
