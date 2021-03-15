@@ -58,7 +58,7 @@ const Dashboard = () => {
   const clientSecret = "5fe929adaad5c787f860213518b94314dfaa8e38";
   const refreshToken = "37f163e93a75d81084954242cb1f931d8e56be90";
   const authLink = "https://www.strava.com/oauth/token";
-  const activitiesLink = `https://www.strava.com/api/v3/athlete/activities`;
+  const activitiesLink = "https://www.strava.com/api/v3/athlete/activities";
 
   useEffect(() => {
     const docRef = db.collection("users").doc(user.email);
@@ -89,12 +89,17 @@ const Dashboard = () => {
           `${authLink}?client_id=${clientID}&client_secret=${clientSecret}&refresh_token=${refreshToken}&grant_type=refresh_token`
         ),
       ]);
-
-      const stravaActivityResponse = await axios.get(
+      console.log(stravaAuthResponse[0].data.access_token);
+      console.log(
         `${activitiesLink}?access_token=${stravaAuthResponse[0].data.access_token}`
       );
 
-      console.log(stravaAuthResponse[0].data.access_token);
+      // config.headers.Authorization = `Bearer ${token}`;
+
+      const stravaActivityResponse = await axios.get(
+        `${activitiesLink}?access_token=${stravaAuthResponse[0].data.access_token}&scope=profile:read_all;activity:read_all`
+      );
+
       console.log(stravaActivityResponse);
     }
 
